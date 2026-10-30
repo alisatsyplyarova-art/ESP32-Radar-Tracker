@@ -1,0 +1,51 @@
+#pragma once
+// ============================================================================
+//  ESP32 Dual Radar LD2401 + LD2450 - pinout and settings
+//  Board: LILYGO TTGO T-Display (classic ESP32, ST7789 135x240)
+// ============================================================================
+#include <Arduino.h>
+
+// ---- Pins reserved by the board (do NOT reuse) ------------------------------
+//  TFT : MOSI 19, SCLK 18, CS 5, DC 16, RST 23, BL 4   (set in platformio.ini)
+//  Buttons : GPIO0 (BOOT), GPIO35 (input only, external pull-up on the board)
+//  Battery ADC : GPIO34, ADC enable : GPIO14
+//  USB-UART (Serial / flashing) : GPIO1, GPIO3
+//  Flash : GPIO6..11 (never use);  strapping: 0, 2, 5, 12, 15 (avoided)
+#define PIN_BTN_1 0
+#define PIN_BTN_2 35
+
+// ---- Sensors (UART1 and UART2, remapped through the GPIO matrix) -----------
+// "RX" = pin of the ESP32 that RECEIVES, i.e. it is wired to the sensor's TX.
+#define PIN_LD2450_RX 25   // <- LD2450 TX
+#define PIN_LD2450_TX 26   // -> LD2450 RX
+#define PIN_LD2401_RX 27   // <- LD2401 TX, as in the working v1.0.004 wiring
+#define PIN_LD2401_TX 26   // -> LD2401 RX, as in the working v1.0.004 wiring
+#define PIN_LD2401_OUT 25  // <- optional LD2401 OUT diagnostic signal
+
+#define LD2450_BAUD 256000UL   // factory default
+#define LD2401_BAUD 256000UL   // confirm exact baud for your LD2401 module/firmware
+
+// Send "multi-target tracking" command to the LD2450 at start-up (command 0x0090).
+#define LD2450_SEND_MULTI_TARGET_CMD 1
+// Sign convention of LD2450 speed. VERIFY on hardware (walk toward the sensor):
+// 1 -> positive value shown as "AWAY", 0 -> positive value shown as "NEAR".
+#define LD2450_POSITIVE_SPEED_IS_AWAY 1
+
+// ---- Link supervision -------------------------------------------------------
+#define LINK_TIMEOUT_MS        1500   // no valid frame for this long -> LOST
+#define LINK_GARBAGE_AFTER_MS  2000   // bytes arrive but no valid frame -> BAD DATA
+#define RESTART_AFTER_MS       6000   // re-open UART if no valid frame for this long
+
+// ---- Target tracking (LD2450) ----------------------------------------------
+#define TARGET_HOLD_MS     300        // marker stays "live" this long after last frame
+#define TARGET_TIMEOUT_MS  1000       // marker is deleted after this long without data
+#define TARGET_SMOOTH      0.45f      // EMA factor for display position (1 = no smoothing)
+#define TRAIL_LEN          8
+#define LD2450_MAX_ABS_X   4000       // mm, plausibility limits (sensor: +-60 deg, ~6 m)
+#define LD2450_MAX_Y       8000       // mm
+
+// ---- UI ---------------------------------------------------------------------
+#define UI_FRAME_MS        33
+#define SWEEP_PERIOD_MS    3000
+#define BTN_DEBOUNCE_MS    30
+#define BTN_LONG_MS        700

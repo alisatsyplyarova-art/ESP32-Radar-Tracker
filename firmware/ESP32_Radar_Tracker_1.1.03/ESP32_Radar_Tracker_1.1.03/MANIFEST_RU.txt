@@ -1,0 +1,5 @@
+ESP32_Radar_Tracker_1.1.03 — состав архива
+Главный скетч: ESP32_Radar_Tracker_1.1.03.ino
+Плата: классическая ESP32 LILYGO TTGO T-Display, ST7789 240x135, Arduino-ESP32 Core 3.x.
+Исправление: маршрутизация экранов и отображение Style ALIEN/CLASSIC в SETTINGS.
+Перед прошивкой откройте INSTRUCTION_ARDUINO_IDE / ИНСТРУКЦИЯ_ARDUINO_IDE.txt и проверьте компиляцию в Arduino IDE.
