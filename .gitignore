@@ -1,0 +1,24 @@
+# Arduino / PlatformIO build artifacts
+build/
+.pio/
+.cache/
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.a
+*.tmp
+*.bak
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local secrets and machine-specific settings
+secrets.h
+credentials.h
