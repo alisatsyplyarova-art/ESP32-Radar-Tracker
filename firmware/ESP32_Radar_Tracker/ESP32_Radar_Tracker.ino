@@ -82,7 +82,7 @@ void setup() {
   settings.alertIdx = prefs.getUChar("alert", 0) % RadarDisplay::kAlerts;
   if (!display.begin()) Serial.println(F("[UI] display init problem"));
   display.setBrightness(settings.brightIdx); buttons.begin(); pinMode(PIN_LD2401_OUT, INPUT);
-  web.begin(); ld2450.begin(Serial1, PIN_LD2450_RX, PIN_LD2450_TX, LD2450_BAUD);
+  web.begin(settings, demoMode, demoTargets, display, prefs); ld2450.begin(Serial1, PIN_LD2450_RX, PIN_LD2450_TX, LD2450_BAUD);
   ld2401.begin(Serial2, PIN_LD2401_RX, PIN_LD2401_TX, LD2401_BAUD);
   Serial.printf("[LD2450] UART1 RX=%d TX=%d %lu baud\n", PIN_LD2450_RX, PIN_LD2450_TX, (unsigned long)LD2450_BAUD);
   Serial.printf("[LD2401] UART2 RX=%d TX=%d %lu baud\n", PIN_LD2401_RX, PIN_LD2401_TX, (unsigned long)LD2401_BAUD);
