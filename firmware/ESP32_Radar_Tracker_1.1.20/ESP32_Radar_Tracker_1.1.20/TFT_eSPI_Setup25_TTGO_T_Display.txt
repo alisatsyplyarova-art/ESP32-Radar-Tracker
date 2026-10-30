@@ -1,0 +1,6 @@
+Настройка дисплея TTGO T-Display (классический ESP32)
+
+В библиотеке TFT_eSPI откройте User_Setup_Select.h и активируйте строку:
+#include <User_Setups/TFT_eSPI_Setup25_TTGO_T_Display.h>
+
+Не активируйте одновременно несколько конфигураций. Готовый файл TFT_eSPI_Setup25_TTGO_T_Display.h включён в архив. При отсутствии штатного Setup25 скопируйте его в папку TFT_eSPI/User_Setups/ и выберите его в User_Setup_Select.h.
