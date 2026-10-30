@@ -1,0 +1,5 @@
+ESP32 Radar Tracker
+Version: 1.1.03
+Hardware: LILYGO TTGO T-Display (classic ESP32, ST7789 240x135)
+Sensors: HLK-LD2401 / HLK-LD2450
+Status: User-confirmed working on device; compile not independently verified in this repository.
