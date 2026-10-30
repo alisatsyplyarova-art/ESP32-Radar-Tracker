@@ -1,0 +1,7 @@
+ESP32 Radar Tracker 1.1.04
+Основа: 1.1.03
+Плата: LILYGO TTGO T-Display, классический ESP32, ST7789 240x135
+Общий UART1: RX GPIO27, TX GPIO26, 256000 8N1
+LD2401: TX->GPIO27, RX<-GPIO26, OUT->GPIO25 (необязательно)
+LD2450: TX->GPIO27, RX<-GPIO26
+Подключать только один датчик за раз.
