@@ -172,12 +172,12 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
       float s = sinf(a * kDeg), co = cosf(a * kDeg);
       spr_.drawLine(ox + (int)((R - 3) * s), oy - (int)((R - 3) * co), ox + (int)(R * s), oy - (int)(R * co), radarCyan);
     }
-  // alert zone (dashed red arc)
+  // alert zone (dashed cyan arc)
   uint16_t thr = kAlertMm[c.set->alertIdx % 4];
   if (thr && thr < rng) {
     float r = (float)R * thr / rng;
     for (int a = -60; a <= 60; a += 3)
-      spr_.drawPixel(ox + (int)(r * sinf(a * kDeg)), oy - (int)(r * cosf(a * kDeg)), scale(cBad_, 200));
+      spr_.drawPixel(ox + (int)(r * sinf(a * kDeg)), oy - (int)(r * cosf(a * kDeg)), scale(radarCyan, 200));
   }
 
   // targets (real or demo - decided by caller)
