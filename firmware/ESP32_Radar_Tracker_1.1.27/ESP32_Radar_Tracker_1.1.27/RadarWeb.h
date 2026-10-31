@@ -63,6 +63,7 @@ private:
   void handleApi();
   void handleCsv();
   void handleWifi();
+  void handleWifiScan();
   void handleAction();
   const char* stateName(uint8_t state) const;
 };

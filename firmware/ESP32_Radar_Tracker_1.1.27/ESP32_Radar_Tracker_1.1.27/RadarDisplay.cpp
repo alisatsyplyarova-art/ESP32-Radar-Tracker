@@ -153,7 +153,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
     for (int a = -57; a <= 60; a += 3) {
       int nx = ox + (int)(r * sinf(a * kDeg)), ny = oy - (int)(r * cosf(a * kDeg));
       if (c.set->alien && k != 4) spr_.drawPixel(nx, ny, t.grid);           // dotted rings
-      else spr_.drawLine(px, py, nx, ny, k == 4 ? t.grid : t.dim);
+      else spr_.drawLine(px, py, nx, ny, k == 4 ? TFT_CYAN : t.dim);
       px = nx; py = ny;
     }
     if (R >= 50) txt(ox + 2, oy - (int)r + 1, 1, t.dim, "%.1f", rng * k / 4000.0f);
@@ -161,7 +161,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
   // angular marks
   for (int a = -60; a <= 60; a += 30) {
     int ex = ox + (int)(R * sinf(a * kDeg)), ey = oy - (int)(R * cosf(a * kDeg));
-    spr_.drawLine(ox, oy, ex, ey, (a == 0 || a == 60 || a == -60) ? t.grid : t.dim);
+    spr_.drawLine(ox, oy, ex, ey, (a == 0 || a == 60 || a == -60) ? TFT_CYAN : t.dim);
   }
   spr_.fillCircle(ox, oy, 2, t.accent);
   if (c.set->alien)                                                      // tick marks every 10 deg
