@@ -201,7 +201,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
         TrailPoint p; if (!RadarTargets::trailAt(tt, j, p)) break;
         int tx = ox + (int)(p.x * k), ty = oy - (int)(p.y * k);
         if (tx >= 0 && tx < W && ty >= 0 && ty < H && hypotf(tx - ox, ty - oy) <= R)
-          spr_.fillCircle(tx, ty, 1, scale(tft_.color565(0, 90, 255), 200 - j * 24));
+          spr_.fillCircle(tx, ty, 1, scale(trailBlue, 200 - j * 24));
       }
     }
     float dx = tt.sx * k, dy = -tt.sy * k;
@@ -296,7 +296,7 @@ void RadarDisplay::render(const UiContext& c) {
       HistPoint h = hist[(oldest + i) % 60];
       if (h.cm < 0 || h.cm > maxCm) continue;
       int rr = 4 + ((int)h.cm * (R - 4)) / maxCm;
-      uint16_t col = (i == histCount - 1) ? tft_.color565(255, 140, 0) : tft_.color565(0, 90, 255);
+      uint16_t col = (i == histCount - 1) ? targetOrange : trailBlue;
       spr_.fillCircle(ox, oy - rr, i == histCount - 1 ? 3 : 2, col);
     }
     int cm = -1;
@@ -308,7 +308,7 @@ void RadarDisplay::render(const UiContext& c) {
     }
     if (cm > 0 && cm <= maxCm) {
       int yy = oy - (4 + (cm * (R - 4)) / maxCm);
-      uint16_t col = tft_.color565(255, 140, 0);
+      uint16_t col = targetOrange;
       spr_.drawFastHLine(ox - 7, yy, 15, col); spr_.fillCircle(ox, yy, 3, col);
     }
     spr_.drawLine(ox, oy, ox, oy - R, radarCyan);
