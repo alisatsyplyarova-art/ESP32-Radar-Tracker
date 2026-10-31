@@ -137,6 +137,9 @@ void RadarDisplay::footer(const UiContext& c) {
 // Sector radar field (+-60 deg), origin (ox,oy), radius R pixels
 void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
   const Theme& t = th_[c.set->theme];
+  const uint16_t radarCyan = tft_.color565(0, 210, 255);
+  const uint16_t targetOrange = tft_.color565(255, 140, 0);
+  const uint16_t trailBlue = tft_.color565(0, 90, 255);
   const uint32_t rng = rangeMm(c.set->rangeIdx);
 
   // sweep beam with fading tail (decorative, not a measurement)
@@ -144,7 +147,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
   float a0 = -60.0f + 120.0f * ph;
   for (int j = 0; j < 9; j++) {
     float a = a0 - j * 2.5f; if (a < -60.0f) break;
-    spr_.drawLine(ox, oy, ox + (int)(R * sinf(a * kDeg)), oy - (int)(R * cosf(a * kDeg)), scale(TFT_CYAN, 200 - j * 22));
+    spr_.drawLine(ox, oy, ox + (int)(R * sinf(a * kDeg)), oy - (int)(R * cosf(a * kDeg)), scale(radarCyan, 200 - j * 22));
   }
   // range rings
   for (int k = 1; k <= 4; k++) {
@@ -152,8 +155,8 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
     int px = ox + (int)(r * sinf(-60 * kDeg)), py = oy - (int)(r * cosf(-60 * kDeg));
     for (int a = -57; a <= 60; a += 3) {
       int nx = ox + (int)(r * sinf(a * kDeg)), ny = oy - (int)(r * cosf(a * kDeg));
-      if (c.set->alien && k != 4) spr_.drawPixel(nx, ny, TFT_CYAN);           // dotted rings
-      else spr_.drawLine(px, py, nx, ny, TFT_CYAN);
+      if (c.set->alien && k != 4) spr_.drawPixel(nx, ny, radarCyan);           // dotted rings
+      else spr_.drawLine(px, py, nx, ny, radarCyan);
       px = nx; py = ny;
     }
     if (R >= 50) txt(ox + 2, oy - (int)r + 1, 1, t.dim, "%.1f", rng * k / 4000.0f);
@@ -161,13 +164,13 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
   // angular marks
   for (int a = -60; a <= 60; a += 30) {
     int ex = ox + (int)(R * sinf(a * kDeg)), ey = oy - (int)(R * cosf(a * kDeg));
-    spr_.drawLine(ox, oy, ex, ey, TFT_CYAN);
+    spr_.drawLine(ox, oy, ex, ey, radarCyan);
   }
   spr_.fillCircle(ox, oy, 2, t.accent);
   if (c.set->alien)                                                      // tick marks every 10 deg
     for (int a = -60; a <= 60; a += 10) {
       float s = sinf(a * kDeg), co = cosf(a * kDeg);
-      spr_.drawLine(ox + (int)((R - 3) * s), oy - (int)((R - 3) * co), ox + (int)(R * s), oy - (int)(R * co), TFT_CYAN);
+      spr_.drawLine(ox + (int)((R - 3) * s), oy - (int)((R - 3) * co), ox + (int)(R * s), oy - (int)(R * co), radarCyan);
     }
   // alert zone (dashed red arc)
   uint16_t thr = kAlertMm[c.set->alertIdx % 4];
@@ -184,7 +187,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
     TargetState st = tg.stateOf(i, c.now);
     if (st == TS_NONE) continue;
     const TrackedTarget& tt = tg.get(i);
-    uint16_t col = tft_.color565(255, 140, 0); // orange target marker
+    uint16_t col = targetOrange; // orange target marker
     bool hit = thr && st == TS_LIVE && tt.rawDist < thr;
     // Target markers stay orange; the warning zone remains separately highlighted.
     float delta = 0;                                   // phosphor fade: bright right after the beam passes
@@ -240,6 +243,9 @@ void RadarDisplay::render(const UiContext& c) {
     static uint8_t histHead = 0, histCount = 0;
     static uint32_t lastHistSample = 0;
     const LD2401Data& d = c.pres;
+    const uint16_t radarCyan = tft_.color565(0, 210, 255);
+    const uint16_t targetOrange = tft_.color565(255, 140, 0);
+    const uint16_t trailBlue = trailBlue;
     bool fresh = c.presValid && c.ld2401->link(c.now) == LINK_OK;
     if (c.now - lastHistSample >= 1000 || histCount == 0) {
       lastHistSample = c.now;
@@ -265,7 +271,7 @@ void RadarDisplay::render(const UiContext& c) {
     // fan outline and range arcs: decorative coverage only, not measured bearing
     for (int side = -1; side <= 1; side += 2) {
       float a = side * 60.0f * kDeg;
-      spr_.drawLine(ox, oy, ox + (int)(R * sinf(a)), oy - (int)(R * cosf(a)), TFT_CYAN);
+      spr_.drawLine(ox, oy, ox + (int)(R * sinf(a)), oy - (int)(R * cosf(a)), radarCyan);
     }
     for (int k = 1; k <= 4; ++k) {
       int rr = R * k / 4;
@@ -274,7 +280,7 @@ void RadarDisplay::render(const UiContext& c) {
       for (int a = -57; a <= 60; a += 3) {
         int nx = ox + (int)(rr * sinf(a * kDeg));
         int ny = oy - (int)(rr * cosf(a * kDeg));
-        spr_.drawLine(px, py, nx, ny, TFT_CYAN); px = nx; py = ny;
+        spr_.drawLine(px, py, nx, ny, radarCyan); px = nx; py = ny;
       }
     }
     const uint16_t maxCm = rangeMm(c.set->rangeIdx) / 10;
@@ -305,7 +311,7 @@ void RadarDisplay::render(const UiContext& c) {
       uint16_t col = tft_.color565(255, 140, 0);
       spr_.drawFastHLine(ox - 7, yy, 15, col); spr_.fillCircle(ox, yy, 3, col);
     }
-    spr_.drawLine(ox, oy, ox, oy - R, TFT_CYAN);
+    spr_.drawLine(ox, oy, ox, oy - R, radarCyan);
     spr_.fillCircle(ox, oy, 3, th.accent);
     txtC(132, 109, 1, th.accent, "RADAR");
     // Compact footer follows v1.0.004 and remains readable in landscape.
