@@ -144,7 +144,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
   float a0 = -60.0f + 120.0f * ph;
   for (int j = 0; j < 9; j++) {
     float a = a0 - j * 2.5f; if (a < -60.0f) break;
-    spr_.drawLine(ox, oy, ox + (int)(R * sinf(a * kDeg)), oy - (int)(R * cosf(a * kDeg)), scale(t.accent, 200 - j * 22));
+    spr_.drawLine(ox, oy, ox + (int)(R * sinf(a * kDeg)), oy - (int)(R * cosf(a * kDeg)), scale(TFT_CYAN, 200 - j * 22));
   }
   // range rings
   for (int k = 1; k <= 4; k++) {
@@ -152,8 +152,8 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
     int px = ox + (int)(r * sinf(-60 * kDeg)), py = oy - (int)(r * cosf(-60 * kDeg));
     for (int a = -57; a <= 60; a += 3) {
       int nx = ox + (int)(r * sinf(a * kDeg)), ny = oy - (int)(r * cosf(a * kDeg));
-      if (c.set->alien && k != 4) spr_.drawPixel(nx, ny, t.grid);           // dotted rings
-      else spr_.drawLine(px, py, nx, ny, k == 4 ? TFT_CYAN : t.dim);
+      if (c.set->alien && k != 4) spr_.drawPixel(nx, ny, TFT_CYAN);           // dotted rings
+      else spr_.drawLine(px, py, nx, ny, TFT_CYAN);
       px = nx; py = ny;
     }
     if (R >= 50) txt(ox + 2, oy - (int)r + 1, 1, t.dim, "%.1f", rng * k / 4000.0f);
@@ -161,13 +161,13 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
   // angular marks
   for (int a = -60; a <= 60; a += 30) {
     int ex = ox + (int)(R * sinf(a * kDeg)), ey = oy - (int)(R * cosf(a * kDeg));
-    spr_.drawLine(ox, oy, ex, ey, (a == 0 || a == 60 || a == -60) ? TFT_CYAN : t.dim);
+    spr_.drawLine(ox, oy, ex, ey, TFT_CYAN);
   }
   spr_.fillCircle(ox, oy, 2, t.accent);
   if (c.set->alien)                                                      // tick marks every 10 deg
     for (int a = -60; a <= 60; a += 10) {
       float s = sinf(a * kDeg), co = cosf(a * kDeg);
-      spr_.drawLine(ox + (int)((R - 3) * s), oy - (int)((R - 3) * co), ox + (int)(R * s), oy - (int)(R * co), t.grid);
+      spr_.drawLine(ox + (int)((R - 3) * s), oy - (int)((R - 3) * co), ox + (int)(R * s), oy - (int)(R * co), TFT_CYAN);
     }
   // alert zone (dashed red arc)
   uint16_t thr = kAlertMm[c.set->alertIdx % 4];
@@ -184,9 +184,9 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
     TargetState st = tg.stateOf(i, c.now);
     if (st == TS_NONE) continue;
     const TrackedTarget& tt = tg.get(i);
-    uint16_t col = c.set->alien ? t.accent : cSlot_[i];
+    uint16_t col = tft_.color565(255, 140, 0); // orange target marker
     bool hit = thr && st == TS_LIVE && tt.rawDist < thr;
-    if (hit) col = cBad_;
+    // Target markers stay orange; the warning zone remains separately highlighted.
     float delta = 0;                                   // phosphor fade: bright right after the beam passes
     if (c.set->alien) {
       float th = constrain(atan2f(tt.sx, tt.sy) / kDeg, -60.0f, 60.0f);
@@ -198,7 +198,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
         TrailPoint p; if (!RadarTargets::trailAt(tt, j, p)) break;
         int tx = ox + (int)(p.x * k), ty = oy - (int)(p.y * k);
         if (tx >= 0 && tx < W && ty >= 0 && ty < H && hypotf(tx - ox, ty - oy) <= R)
-          spr_.fillCircle(tx, ty, 1, scale(col, 200 - j * 24));
+          spr_.fillCircle(tx, ty, 1, scale(tft_.color565(0, 90, 255), 200 - j * 24));
       }
     }
     float dx = tt.sx * k, dy = -tt.sy * k;
@@ -265,7 +265,7 @@ void RadarDisplay::render(const UiContext& c) {
     // fan outline and range arcs: decorative coverage only, not measured bearing
     for (int side = -1; side <= 1; side += 2) {
       float a = side * 60.0f * kDeg;
-      spr_.drawLine(ox, oy, ox + (int)(R * sinf(a)), oy - (int)(R * cosf(a)), th.grid);
+      spr_.drawLine(ox, oy, ox + (int)(R * sinf(a)), oy - (int)(R * cosf(a)), TFT_CYAN);
     }
     for (int k = 1; k <= 4; ++k) {
       int rr = R * k / 4;
@@ -274,7 +274,7 @@ void RadarDisplay::render(const UiContext& c) {
       for (int a = -57; a <= 60; a += 3) {
         int nx = ox + (int)(rr * sinf(a * kDeg));
         int ny = oy - (int)(rr * cosf(a * kDeg));
-        spr_.drawLine(px, py, nx, ny, rr == R ? th.grid : th.dim); px = nx; py = ny;
+        spr_.drawLine(px, py, nx, ny, TFT_CYAN); px = nx; py = ny;
       }
     }
     const uint16_t maxCm = rangeMm(c.set->rangeIdx) / 10;
@@ -290,8 +290,7 @@ void RadarDisplay::render(const UiContext& c) {
       HistPoint h = hist[(oldest + i) % 60];
       if (h.cm < 0 || h.cm > maxCm) continue;
       int rr = 4 + ((int)h.cm * (R - 4)) / maxCm;
-      uint16_t col = h.state == 2 ? cSlot_[0] : cWarn_;
-      if (i != histCount - 1) col = th.dim;
+      uint16_t col = (i == histCount - 1) ? tft_.color565(255, 140, 0) : tft_.color565(0, 90, 255);
       spr_.fillCircle(ox, oy - rr, i == histCount - 1 ? 3 : 2, col);
     }
     int cm = -1;
@@ -303,10 +302,10 @@ void RadarDisplay::render(const UiContext& c) {
     }
     if (cm > 0 && cm <= maxCm) {
       int yy = oy - (4 + (cm * (R - 4)) / maxCm);
-      uint16_t col = d.state == 2 ? cSlot_[0] : cWarn_;
+      uint16_t col = tft_.color565(255, 140, 0);
       spr_.drawFastHLine(ox - 7, yy, 15, col); spr_.fillCircle(ox, yy, 3, col);
     }
-    spr_.drawLine(ox, oy, ox, oy - R, th.grid);
+    spr_.drawLine(ox, oy, ox, oy - R, TFT_CYAN);
     spr_.fillCircle(ox, oy, 3, th.accent);
     txtC(132, 109, 1, th.accent, "RADAR");
     // Compact footer follows v1.0.004 and remains readable in landscape.
