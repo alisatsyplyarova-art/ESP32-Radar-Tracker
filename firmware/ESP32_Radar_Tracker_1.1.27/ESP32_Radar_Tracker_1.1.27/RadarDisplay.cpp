@@ -245,7 +245,7 @@ void RadarDisplay::render(const UiContext& c) {
     const LD2401Data& d = c.pres;
     const uint16_t radarCyan = tft_.color565(0, 210, 255);
     const uint16_t targetOrange = tft_.color565(255, 140, 0);
-    const uint16_t trailBlue = trailBlue;
+    const uint16_t trailBlue = tft_.color565(0, 90, 255);
     bool fresh = c.presValid && c.ld2401->link(c.now) == LINK_OK;
     if (c.now - lastHistSample >= 1000 || histCount == 0) {
       lastHistSample = c.now;
