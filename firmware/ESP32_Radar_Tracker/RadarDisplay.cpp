@@ -329,10 +329,9 @@ void RadarDisplay::render(const UiContext& c) {
     String staIp = connected ? WiFi.localIP().toString() : String("--");
     String apIp = WiFi.softAPIP().toString();
     txt(5, 25, 2, connected ? cGood_ : cWarn_, "%s", connected ? "HOME WI-FI OK" : "HOME WI-FI OFF");
-    txt(5, 49, 1, th.dim, "NETWORK (SSID)");
-    // Larger font for the connected network name; long SSIDs use size 2.
-    const uint8_t ssidFont = ssid.length() <= 11 ? 3 : 2;
-    txt(5, 62, ssidFont, cText_, "%s", ssid.c_str());
+    txt(5, 51, 1, th.dim, "NETWORK (SSID)");
+    // Use the reliable built-in font 2 and keep the SSID on its own line.
+    txt(5, 65, 2, cText_, "%s", ssid.c_str());
     txt(5, 89, 1, th.dim, "HOME NETWORK IP");
     txt(5, 101, 2, cText_, "%s", staIp.c_str());
     txt(5, 119, 1, th.accent, "LD-RADAR AP: %s", apIp.c_str());
