@@ -1,6 +1,7 @@
 #include "RadarDisplay.h"
 #include <stdarg.h>
 #include <math.h>
+#include <WiFi.h>
 
 static const uint16_t kRangesMm[7] = {500, 1000, 1500, 2000, 3000, 4000, 6000};
 static const uint8_t  kBrightPwm[5] = {15, 50, 110, 190, 255};
@@ -229,7 +230,7 @@ void RadarDisplay::render(const UiContext& c) {
                       c.screen == SCR_TARGETS ? "TARGETS" :
                       c.screen == SCR_PRESENCE ? "PRESENCE" :
                       c.screen == SCR_DUAL ? "SENSOR" :
-                      c.screen == SCR_DIAG ? "DIAGNOSTICS" : "SETTINGS";
+                      c.screen == SCR_DIAG ? "DIAGNOSTICS" : c.screen == SCR_WIFI ? "WIFI NETWORK" : "SETTINGS";
   txt(4, 1, 2, th.accent, "%s", title);
   // Fixed status indicators; never write a second title over this row.
   spr_.fillCircle(211, 8, 3, linkCol(c.ld2450->link(c.now)));
@@ -322,6 +323,17 @@ void RadarDisplay::render(const UiContext& c) {
     if (cm > 0 && cm <= maxCm) txt(84, 120, 2, cText_, "%d.%02d m", cm / 100, cm % 100);
     else txt(84, 120, 2, cText_, "--.-- m");
     txt(196, 121, 1, th.dim, "E%u", fresh ? (d.state == 2 ? d.statEnergy : d.movEnergy) : 0);
+  } else if (c.screen == SCR_WIFI) {
+    const bool connected = WiFi.status() == WL_CONNECTED;
+    String ssid = connected ? WiFi.SSID() : String("NOT CONNECTED");
+    String staIp = connected ? WiFi.localIP().toString() : String("--");
+    String apIp = WiFi.softAPIP().toString();
+    txt(5, 25, 2, connected ? cGood_ : cWarn_, "%s", connected ? "HOME WI-FI OK" : "HOME WI-FI OFF");
+    txt(5, 51, 1, th.dim, "NETWORK (SSID)");
+    txt(5, 64, 2, cText_, "%s", ssid.c_str());
+    txt(5, 89, 1, th.dim, "HOME NETWORK IP");
+    txt(5, 101, 2, cText_, "%s", staIp.c_str());
+    txt(5, 119, 1, th.accent, "LD-RADAR AP: %s", apIp.c_str());
   } else if (c.screen == SCR_TARGETS) {
     const RadarTargets& tg = *c.targets;
     txt(5, 21, 2, linkCol(c.ld2450->link(c.now)), "LD2450 %s", linkStateStr(c.ld2450->link(c.now)));
