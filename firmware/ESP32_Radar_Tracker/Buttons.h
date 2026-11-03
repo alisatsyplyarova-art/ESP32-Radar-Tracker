@@ -1,7 +1,10 @@
 #pragma once
 #include <Arduino.h>
 #include "Config.h"
+
 enum BtnEvent : uint8_t { BTN_NONE, BTN_SHORT, BTN_LONG };
+
+// Debounced button, active LOW. SHORT fires on release, LONG fires once while held.
 class Button {
 public:
   void begin(uint8_t pin, bool usePullup);
@@ -11,6 +14,7 @@ private:
   bool lastRaw_ = false, stable_ = false, longFired_ = false;
   uint32_t lastChange_ = 0, pressedAt_ = 0;
 };
+
 class Buttons {
 public:
   void begin();
