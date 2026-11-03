@@ -5,7 +5,7 @@
 #include "RadarLD2450.h"
 #include "RadarLD2401.h"
 
-enum Screen : uint8_t { SCR_RADAR, SCR_TARGETS, SCR_PRESENCE, SCR_DUAL, SCR_DIAG, SCR_SETTINGS, SCR_COUNT };
+enum Screen : uint8_t { SCR_RADAR, SCR_TARGETS, SCR_PRESENCE, SCR_DUAL, SCR_DIAG, SCR_SETTINGS, SCR_WIFI, SCR_COUNT };
 
 struct UiSettings {
   uint8_t rangeIdx = 6;    // 0..6 -> 0.5 / 1 / 1.5 / 2 / 3 / 4 / 6 m
