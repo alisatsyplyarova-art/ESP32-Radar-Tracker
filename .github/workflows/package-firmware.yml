@@ -2,7 +2,7 @@ name: Package ESP32 Radar Tracker firmware
 
 on:
   push:
-    branches: [main]
+    branches: [main, 1.1.31-fixed]
     paths:
       - 'firmware/ESP32_Radar_Tracker/**'
       - '.github/workflows/package-firmware.yml'
@@ -15,20 +15,36 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
+      - name: Checkout exact source revision
         uses: actions/checkout@v4
-      - name: Verify firmware version
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Verify version and sensor drivers
+        id: version
         run: |
-          grep -q '#define FIRMWARE_VERSION "1.1.30"' firmware/ESP32_Radar_Tracker/Version.h
-          grep -q '1.1.30' firmware/ESP32_Radar_Tracker/VERSION.txt
-      - name: Create versioned ZIP
+          VERSION=$(sed -n 's/.*FIRMWARE_VERSION "\([^"]*\)".*/\1/p' firmware/ESP32_Radar_Tracker/Version.h)
+          test -n "$VERSION"
+          grep -q "$VERSION" firmware/ESP32_Radar_Tracker/VERSION.txt
+          test -f firmware/ESP32_Radar_Tracker/RadarLD2401.cpp
+          test -f firmware/ESP32_Radar_Tracker/RadarLD2450.cpp
+          test -f firmware/ESP32_Radar_Tracker/ESP32_Radar_Tracker.ino
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create Arduino IDE folder and ZIP (no nested archives)
         run: |
-          mkdir -p package/ESP32-Radar-Tracker-1.1.30
-          cp -R firmware/ESP32_Radar_Tracker/. package/ESP32-Radar-Tracker-1.1.30/
-          zip -r ESP32-Radar-Tracker-1.1.30.zip package/ESP32-Radar-Tracker-1.1.30
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p package/ESP32_Radar_Tracker
+          cp -R firmware/ESP32_Radar_Tracker/. package/ESP32_Radar_Tracker/
+          test -f package/ESP32_Radar_Tracker/ESP32_Radar_Tracker.ino
+          cd package
+          zip -r "../ESP32-Radar-Tracker-$VERSION-ArduinoIDE.zip" ESP32_Radar_Tracker
+          cd ..
+          unzip -l "ESP32-Radar-Tracker-$VERSION-ArduinoIDE.zip"
+
       - name: Upload ZIP artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ESP32-Radar-Tracker-1.1.30
-          path: ESP32-Radar-Tracker-1.1.30.zip
+          name: ESP32-Radar-Tracker-${{ steps.version.outputs.version }}-ArduinoIDE
+          path: ESP32-Radar-Tracker-${{ steps.version.outputs.version }}-ArduinoIDE.zip
           if-no-files-found: error
