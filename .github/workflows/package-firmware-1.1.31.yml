@@ -1,0 +1,48 @@
+name: Package ESP32 Radar Tracker 1.1.31
+
+on:
+  push:
+    branches: [1.1.31-fixed]
+    paths:
+      - 'firmware/ESP32_Radar_Tracker/**'
+      - '.github/workflows/package-firmware-1.1.31.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch source
+        uses: actions/checkout@v4
+        with:
+          ref: 1.1.31-fixed
+
+      - name: Verify version and required sensor modules
+        run: |
+          grep -q '#define FIRMWARE_VERSION "1.1.31"' firmware/ESP32_Radar_Tracker/Version.h
+          grep -q '1.1.31' firmware/ESP32_Radar_Tracker/VERSION.txt
+          test -f firmware/ESP32_Radar_Tracker/RadarLD2401.cpp
+          test -f firmware/ESP32_Radar_Tracker/RadarLD2450.cpp
+          test -f firmware/ESP32_Radar_Tracker/RadarDisplay.cpp
+          test -f firmware/ESP32_Radar_Tracker/ESP32_Radar_Tracker.ino
+
+      - name: Build Arduino IDE folder and ZIP (no nested archives)
+        run: |
+          mkdir -p package/ESP32_Radar_Tracker
+          cp -R firmware/ESP32_Radar_Tracker/. package/ESP32_Radar_Tracker/
+          test -f package/ESP32_Radar_Tracker/ESP32_Radar_Tracker.ino
+          test ! -f package/ESP32_Radar_Tracker/*.zip
+          cd package
+          zip -r ../ESP32-Radar-Tracker-1.1.31-ArduinoIDE.zip ESP32_Radar_Tracker
+          cd ..
+          unzip -l ESP32-Radar-Tracker-1.1.31-ArduinoIDE.zip
+
+      - name: Upload firmware ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESP32-Radar-Tracker-1.1.31-ArduinoIDE
+          path: ESP32-Radar-Tracker-1.1.31-ArduinoIDE.zip
+          if-no-files-found: error
