@@ -30,6 +30,7 @@ static bool         buzzerEnabled = false;
 static bool         alarmActive = false;
 static uint8_t      zoneMask = 0x01; // front enabled by default
 static bool         rearFilterBypass = false; // hide targets behind the sensor by default
+static bool         webTrails = true; // independent web radar trail toggle
 static uint8_t      webScaleIdx = 2; // independent web radar scale: 2/4/6 m
 static uint16_t     minRangeCm = 50, maxRangeCm = 500; // valid target distance, inclusive
 static LD2401Data   demoPres;
@@ -162,6 +163,7 @@ void setup() {
   buzzerEnabled = prefs.getBool("buzzer", false);
   zoneMask = prefs.getUChar("zones", 0x01) & 0x0F;
   rearFilterBypass = prefs.getBool("rearBypass", false);
+  webTrails = prefs.getBool("webTrails", true);
   webScaleIdx = prefs.getUChar("webScale", 2) % 3;
   minRangeCm = prefs.getUShort("mincm", 50); maxRangeCm = prefs.getUShort("maxcm", 500);
   if (minRangeCm < 10 || minRangeCm >= maxRangeCm || maxRangeCm > 2000) { minRangeCm = 50; maxRangeCm = 500; }
@@ -207,6 +209,7 @@ void loop() {
     else if (webAction.name == "buzzer") { buzzerEnabled = (v != 0); prefs.putBool("buzzer", buzzerEnabled); if (!buzzerEnabled) digitalWrite(PIN_ALARM_BUZZER, LOW); }
     else if (webAction.name == "zones") { zoneMask = (uint8_t)v & 0x0F; prefs.putUChar("zones", zoneMask); }
     else if (webAction.name == "rearfilter") { rearFilterBypass = (v != 0); prefs.putBool("rearBypass", rearFilterBypass); }
+    else if (webAction.name == "webtrails") { webTrails = (v != 0); prefs.putBool("webTrails", webTrails); }
     else if (webAction.name == "webscale") { webScaleIdx = (uint8_t)v % 3; prefs.putUChar("webScale", webScaleIdx); }
     else if (webAction.name == "minrange") { if (v < maxRangeCm) { minRangeCm = (uint16_t)v; prefs.putUShort("mincm", minRangeCm); realTargets.clear(); } }
     else if (webAction.name == "maxrange") { if (v > minRangeCm) { maxRangeCm = (uint16_t)v; prefs.putUShort("maxcm", maxRangeCm); realTargets.clear(); } }
@@ -219,7 +222,7 @@ void loop() {
     WebUiState u;
     u.screen = (uint8_t)screen; u.item = settings.item;
     u.rangeIdx = settings.rangeIdx; u.brightIdx = settings.brightIdx; u.theme = settings.theme; u.alertIdx = settings.alertIdx;
-    u.alien = settings.alien; u.trails = settings.trails; u.sweep = settings.sweep; u.demo = demoMode; u.buzzer = buzzerEnabled; u.zoneMask = zoneMask; u.rearFilterBypass = rearFilterBypass; u.webScaleIdx = webScaleIdx; u.minRangeCm = minRangeCm; u.maxRangeCm = maxRangeCm;
+    u.alien = settings.alien; u.trails = settings.trails; u.sweep = settings.sweep; u.demo = demoMode; u.buzzer = buzzerEnabled; u.zoneMask = zoneMask; u.rearFilterBypass = rearFilterBypass; u.webTrails = webTrails; u.webScaleIdx = webScaleIdx; u.minRangeCm = minRangeCm; u.maxRangeCm = maxRangeCm;
     web.setUiState(u);
   }
 
