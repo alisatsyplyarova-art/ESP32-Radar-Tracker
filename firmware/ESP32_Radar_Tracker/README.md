@@ -1,4 +1,4 @@
-# ESP32 Radar Tracker 1.1.28
+# ESP32 Radar Tracker 1.1.31 — based on the verified 1.1.28-fixed source 1.1.28
 
 Полная папка скетча для LILYGO TTGO T-Display (классический ESP32, ST7789 240×135).
 
