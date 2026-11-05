@@ -235,8 +235,8 @@ void RadarDisplay::render(const UiContext& c) {
   // Fixed status indicators. When one shared-UART sensor is active, the
   // inactive parser's expected foreign-protocol bytes are not shown as BAD DATA.
   const LinkState l2450 = c.ld2450->link(c.now), l2401 = c.ld2401->link(c.now);
-  spr_.fillCircle(211, 8, 3, linkCol(l2450 == LINK_OK ? LINK_OK : (l2401 == LINK_OK ? LINK_NONE : l2450)));
-  spr_.fillCircle(226, 8, 3, linkCol(l2401 == LINK_OK ? LINK_OK : (l2450 == LINK_OK ? LINK_NONE : l2401)));
+  spr_.fillCircle(211, 8, 3, linkCol(l2450 == LINK_OK ? LINK_OK : (l2401 == LINK_OK ? LINK_NO_DATA : l2450)));
+  spr_.fillCircle(226, 8, 3, linkCol(l2401 == LINK_OK ? LINK_OK : (l2450 == LINK_OK ? LINK_NO_DATA : l2401)));
 
   if (c.screen == SCR_RADAR && l2450 == LINK_OK) {
     // Full-screen top-down LD2450 view. X is left/right, Y is forward.
@@ -289,7 +289,7 @@ void RadarDisplay::render(const UiContext& c) {
       txt(tx + 7, ty + 2, 1, cText_, "%.1fm", tt.rawDist / 1000.0f);
     }
     if (!visible) txtC(120, 55, 2, th.dim, "NO TARGETS");
-    txt(5, 121, 1, th.dim, "X %+.1fm  Y %.1fm  |  1-3 TARGETS", 0.0f, rng / 1000.0f);
+    txt(5, 121, 1, th.dim, "TOP VIEW  |  UP = FRONT  |  3 TARGETS MAX");
   } else if (c.screen == SCR_PRESENCE || (c.screen == SCR_RADAR && c.presValid && l2401 == LINK_OK && l2450 != LINK_OK)) {
     // LD2401 interface based on the user's v1.0.004: fan-shaped 0..6 m range
     // rings with a 60-second distance history on the centreline. LD2401 has no bearing.
