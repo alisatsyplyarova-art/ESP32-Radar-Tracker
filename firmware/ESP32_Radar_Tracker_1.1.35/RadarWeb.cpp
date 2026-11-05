@@ -191,6 +191,7 @@ void RadarWeb::handleApi(){
   j += ",\"buzzer\":"; j += String(ui_.buzzer ? 1 : 0); j += ",\"sweep\":"; j += String(ui_.sweep ? 1 : 0);
   j += ",\"zones\":"; j += String(ui_.zoneMask);
   j += ",\"rearFilterBypass\":"; j += String(ui_.rearFilterBypass ? 1 : 0);
+  j += ",\"webTrails\":"; j += String(ui_.webTrails ? 1 : 0);
   j += ",\"webScaleIdx\":"; j += String(ui_.webScaleIdx); j += ",\"minCm\":"; j += String(ui_.minRangeCm);
   j += ",\"maxCm\":"; j += String(ui_.maxRangeCm); j += "},\"targets\":[";
   for (int i = 0; i < 3; ++i) {
