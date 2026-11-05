@@ -32,6 +32,7 @@ struct WebUiState {
   uint8_t rangeIdx = 0, brightIdx = 0, theme = 0, alertIdx = 0;
   bool alien = true, trails = true, demo = false, buzzer = false, sweep = false;
   bool rearFilterBypass = false; // false = discard targets with Y < 0 on web radar
+  bool webTrails = true; // independent web-only trail visibility
   uint8_t webScaleIdx = 2; // 0=2m, 1=4m, 2=6m; web-only
   uint8_t zoneMask = 0x01; // bit0 front, bit1 left, bit2 right, bit3 rear
   uint16_t minRangeCm = 50, maxRangeCm = 500; // inclusive range filter, cm
