@@ -232,11 +232,65 @@ void RadarDisplay::render(const UiContext& c) {
                       c.screen == SCR_DUAL ? "SENSOR" :
                       c.screen == SCR_DIAG ? "DIAGNOSTICS" : c.screen == SCR_WIFI ? "WIFI NETWORK" : "SETTINGS";
   txt(4, 1, 2, th.accent, "%s", title);
-  // Fixed status indicators; never write a second title over this row.
-  spr_.fillCircle(211, 8, 3, linkCol(c.ld2450->link(c.now)));
-  spr_.fillCircle(226, 8, 3, linkCol(c.ld2401->link(c.now)));
+  // Fixed status indicators. When one shared-UART sensor is active, the
+  // inactive parser's expected foreign-protocol bytes are not shown as BAD DATA.
+  const LinkState l2450 = c.ld2450->link(c.now), l2401 = c.ld2401->link(c.now);
+  spr_.fillCircle(211, 8, 3, linkCol(l2450 == LINK_OK ? LINK_OK : (l2401 == LINK_OK ? LINK_NO_DATA : l2450)));
+  spr_.fillCircle(226, 8, 3, linkCol(l2401 == LINK_OK ? LINK_OK : (l2450 == LINK_OK ? LINK_NO_DATA : l2401)));
 
-  if (c.screen == SCR_PRESENCE || (c.screen == SCR_RADAR && c.presValid && c.ld2401->link(c.now) == LINK_OK && c.ld2450->link(c.now) != LINK_OK)) {
+  if (c.screen == SCR_RADAR && l2450 == LINK_OK) {
+    // Full-screen top-down LD2450 view. X is left/right, Y is forward.
+    const uint16_t radarCyan = tft_.color565(0, 210, 255);
+    const uint16_t trailBlue = tft_.color565(0, 90, 255);
+    const uint32_t rng = rangeMm(c.set->rangeIdx);
+    const int ox = W / 2, oy = H - 5, R = H - 29;
+    const float k = (float)R / (float)rng;
+    txt(5, 20, 1, th.dim, "LD2450  X/Y  RANGE %.1fm", rng / 1000.0f);
+    // Six distance arcs and a forward axis.
+    for (int ring = 1; ring <= 6; ++ring) {
+      const int rr = (int)(R * ring / 6.0f);
+      int px = ox - rr, py = oy;
+      for (int deg = 180; deg >= 0; deg -= 3) {
+        const float a = deg * kDeg;
+        const int nx = ox + (int)(rr * cosf(a));
+        const int ny = oy - (int)(rr * sinf(a));
+        spr_.drawLine(px, py, nx, ny, scale(radarCyan, ring == 6 ? 210 : 115));
+        px = nx; py = ny;
+      }
+      char label[8]; snprintf(label, sizeof(label), "%dm", ring);
+      txt(ox + 4, oy - rr - 7, 1, th.dim, "%s", label);
+    }
+    spr_.drawLine(ox - R, oy, ox + R, oy, radarCyan);
+    spr_.drawLine(ox, oy - R, ox, oy, scale(radarCyan, 180));
+    spr_.fillCircle(ox, oy, 4, th.accent);
+    spr_.drawCircle(ox, oy, 6, radarCyan);
+    const RadarTargets& tg = *c.targets;
+    uint8_t visible = 0;
+    for (uint8_t i = 0; i < 3; ++i) {
+      const TargetState st = tg.stateOf(i, c.now);
+      if (st == TS_NONE) continue;
+      const TrackedTarget& tt = tg.get(i);
+      const int tx = ox + (int)(tt.rawX * k);
+      const int ty = oy - (int)(tt.rawY * k);
+      if (tx < 3 || tx >= W - 3 || ty < 27 || ty > oy) continue;
+      visible++;
+      if (c.set->trails) {
+        for (uint8_t j = 1; j < TRAIL_LEN; ++j) {
+          TrailPoint p; if (!RadarTargets::trailAt(tt, j, p)) break;
+          const int px = ox + (int)(p.x * k), py = oy - (int)(p.y * k);
+          if (px >= 1 && px < W - 1 && py >= 25 && py <= oy)
+            spr_.fillCircle(px, py, 1, scale(trailBlue, 210 - j * 20));
+        }
+      }
+      const uint16_t col = cSlot_[i];
+      if (st == TS_HOLD) spr_.drawCircle(tx, ty, 5, scale(col, 120));
+      else { spr_.fillCircle(tx, ty, 4, col); spr_.drawCircle(tx, ty, 6, cText_); }
+      txt(tx + 7, ty - 7, 1, col, "T%u", i + 1);
+      txt(tx + 7, ty + 2, 1, cText_, "%.1fm", tt.rawDist / 1000.0f);
+    }
+    if (!visible) txtC(120, 55, 2, th.dim, "NO TARGETS");
+    txt(5, 121, 1, th.dim, "TOP VIEW  |  UP = FRONT  |  3 TARGETS MAX");
+  } else if (c.screen == SCR_PRESENCE || (c.screen == SCR_RADAR && c.presValid && l2401 == LINK_OK && l2450 != LINK_OK)) {
     // LD2401 interface based on the user's v1.0.004: fan-shaped 0..6 m range
     // rings with a 60-second distance history on the centreline. LD2401 has no bearing.
     struct HistPoint { int16_t cm; uint8_t state; };

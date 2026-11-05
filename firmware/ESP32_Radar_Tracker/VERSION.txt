@@ -1,1 +1,5 @@
-ESP32 Radar Tracker 1.1.30
+ESP32 Radar Tracker 1.1.31
+Based on the verified 1.1.28-fixed source.
+LD2450: full-screen X/Y radar with up to three targets; automatic sensor selection.
+LD2401: preserved presence/range screen and parser.
+Shared UART: GPIO27 RX / GPIO26 TX, 256000 baud.

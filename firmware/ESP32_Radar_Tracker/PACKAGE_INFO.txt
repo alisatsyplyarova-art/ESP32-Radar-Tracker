@@ -1,0 +1,4 @@
+ESP32 Radar Tracker 1.1.31
+Source baseline: branch 1.1.28-fixed.
+TTGO display: automatic sensor selection; LD2450 full-screen X/Y view.
+Arduino IDE: open ESP32_Radar_Tracker.ino in this folder.

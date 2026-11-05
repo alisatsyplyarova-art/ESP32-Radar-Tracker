@@ -1,4 +1,4 @@
-// ESP32 Radar Tracker 1.1.30 - Arduino IDE sketch (modules are in the sketch folder)
+// ESP32 Radar Tracker 1.1.31 - Arduino IDE sketch (modules are in the sketch folder)
 // BOARD MUST BE: Tools -> Board -> esp32 -> "ESP32 Dev Module" (core 3.x (or compatible ESP32 Arduino core)), NOT Arduino Uno/AVR.
 // TFT_eSPI: in User_Setup_Select.h enable  #include <User_Setups/TFT_eSPI_Setup25_TTGO_T_Display.h>
 // ESP32 Dual Radar LD2401 + LD2450 - LILYGO TTGO T-Display (classic ESP32)
@@ -26,7 +26,6 @@ static RadarWeb web;
 static UiSettings   settings;
 static Screen       screen = SCR_RADAR;
 static bool         demoMode = false;
-static bool         sweepBeam = true;
 static bool         buzzerEnabled = false;
 static bool         alarmActive = false;
 static uint8_t      zoneMask = 0x01; // front enabled by default
@@ -86,7 +85,6 @@ static void saveSettings() {
   prefs.putUChar("range", settings.rangeIdx); prefs.putUChar("bright", settings.brightIdx);
   prefs.putUChar("theme", settings.theme);    prefs.putBool("trails", settings.trails);
   prefs.putBool("alien", settings.alien);     prefs.putUChar("alert", settings.alertIdx);
-  prefs.putBool("beam", sweepBeam);
 }
 
 // Synthetic data, only shown while demoMode is on and always labelled DEMO.
@@ -137,12 +135,11 @@ static void onButtons(uint32_t now) {
 void setup() {
   Serial.begin(115200);
   delay(200);
-  Serial.println(F("\n=== ESP32 Radar Tracker 1.1.30 | shared UART LD2401/LD2450 | TTGO T-Display ==="));
+  Serial.println(F("\n=== ESP32 Radar Tracker 1.1.31 | shared UART LD2401/LD2450 | TTGO T-Display ==="));
   Serial.printf("[BOOT] reset reason %d, free heap %u, largest block %u\n",
                 (int)esp_reset_reason(), (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMaxAllocHeap());
   prefs.begin("radar", false);
   buzzerEnabled = prefs.getBool("buzzer", false);
-  sweepBeam = prefs.getBool("beam", true);
   zoneMask = prefs.getUChar("zones", 0x01) & 0x0F;
   minRangeCm = prefs.getUShort("mincm", 50); maxRangeCm = prefs.getUShort("maxcm", 500);
   if (minRangeCm < 10 || minRangeCm >= maxRangeCm || maxRangeCm > 2000) { minRangeCm = 50; maxRangeCm = 500; }
@@ -189,7 +186,6 @@ void loop() {
     else if (webAction.name == "minrange") { if (v < maxRangeCm) { minRangeCm = (uint16_t)v; prefs.putUShort("mincm", minRangeCm); realTargets.clear(); } }
     else if (webAction.name == "maxrange") { if (v > minRangeCm) { maxRangeCm = (uint16_t)v; prefs.putUShort("maxcm", maxRangeCm); realTargets.clear(); } }
     else if (webAction.name == "trails") settings.trails = (v != 0);
-    else if (webAction.name == "beam") { sweepBeam = (v != 0); prefs.putBool("beam", sweepBeam); }
     else if (webAction.name == "demo" && demoMode != (v != 0)) { demoMode = (v != 0); demoTargets.clear(); Serial.println(demoMode ? F("[UI] DEMO mode ON (synthetic data)") : F("[UI] DEMO mode OFF (real data)")); }
     saveSettings();
   }
@@ -197,7 +193,7 @@ void loop() {
     WebUiState u;
     u.screen = (uint8_t)screen; u.item = settings.item;
     u.rangeIdx = settings.rangeIdx; u.brightIdx = settings.brightIdx; u.theme = settings.theme; u.alertIdx = settings.alertIdx;
-    u.alien = settings.alien; u.trails = settings.trails; u.demo = demoMode; u.beam = sweepBeam; u.buzzer = buzzerEnabled; u.zoneMask = zoneMask; u.minRangeCm = minRangeCm; u.maxRangeCm = maxRangeCm;
+    u.alien = settings.alien; u.trails = settings.trails; u.demo = demoMode; u.buzzer = buzzerEnabled; u.zoneMask = zoneMask; u.minRangeCm = minRangeCm; u.maxRangeCm = maxRangeCm;
     web.setUiState(u);
   }
 
