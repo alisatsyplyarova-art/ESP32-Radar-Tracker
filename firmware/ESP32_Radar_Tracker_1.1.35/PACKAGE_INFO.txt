@@ -1,0 +1,3 @@
+ESP32 Radar Tracker firmware 1.1.35
+Based on 1.1.34; previous version preserved separately.
+Arduino IDE sketch: ESP32_Radar_Tracker_1.1.35.ino
