@@ -29,7 +29,7 @@ struct WebSample {
 // Snapshot of device settings, exposed as direct web controls.
 struct WebUiState {
   uint8_t screen = 0;      // 0 RADAR, 1 TARGETS, 2 PRESENCE, 3 DUAL, 4 DIAG, 5 SETTINGS, 6 WIFI
-  uint8_t item = 0;        // selected row on SETTINGS (0..4)
+  uint8_t item = 0;        // selected row on SETTINGS (0..5)
   uint8_t rangeIdx = 0, brightIdx = 0, theme = 0, alertIdx = 0, trailTimeIdx = 3;
   uint8_t trailSeconds = 5;
   bool trails = true, demo = false, buzzer = false, sweep = false;
