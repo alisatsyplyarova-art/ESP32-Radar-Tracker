@@ -1,0 +1,4 @@
+ESP32 Radar Tracker 1.1.41
+Incremental update based on 1.1.40.
+Removed ALIEN/CLASSIC target-style selection from web and TTGO settings. A single fixed Tracker display style remains.
+Other radar and sensor settings are retained.
