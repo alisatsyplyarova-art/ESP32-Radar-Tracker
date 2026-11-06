@@ -1,0 +1,4 @@
+ESP32 Radar Tracker 1.1.42
+Incremental update based on 1.1.41.
+Added persistent trail lifetime selection (1/2/3/5/10 seconds) in TTGO and web settings.
+Trail history uses timestamped samples; T1/T2/T3 trails use darker shades of their target colors instead of blue.
