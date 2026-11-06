@@ -256,7 +256,8 @@ void loop() {
   ld2401.tickShared(now);
 
   LD2450Target fr[3];
-  if (!demoMode && ld2450.consumeFrame(fr)) { for (uint8_t i=0;i<3;i++) if (fr[i].valid && !inDistanceRange(fr[i].dist)) fr[i].valid = false; targets.update(fr, now); }
+  const bool gotLd2450Frame = ld2450.consumeFrame(fr);
+  if (!demoMode && gotLd2450Frame) { for (uint8_t i=0;i<3;i++) if (fr[i].valid && !inDistanceRange(fr[i].dist)) fr[i].valid = false; targets.update(fr, now); }
   if (!demoMode && ld2450.link(now) != LINK_OK) targets.clear();   // never keep targets from a dead link
   targets.expire(now);
 
