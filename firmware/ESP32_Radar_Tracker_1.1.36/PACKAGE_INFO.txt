@@ -1,0 +1,4 @@
+ESP32 Radar Tracker 1.1.36
+Incremental update based on 1.1.35.
+Shared LD2450 scale: 2 / 4 / 6 m on TTGO and web radar.
+Short press B2 cycles 2 -> 4 -> 6 -> 2 m.
