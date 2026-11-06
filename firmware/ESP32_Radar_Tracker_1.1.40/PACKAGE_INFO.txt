@@ -1,0 +1,4 @@
+ESP32 Radar Tracker 1.1.40
+Incremental update based on 1.1.39.
+Fix: LD2450 distance-ring labels on the TTGO display now follow the selected range scale. Fine ranges use two decimal places; larger ranges use one decimal place.
+Web interface and sensor processing are unchanged.
