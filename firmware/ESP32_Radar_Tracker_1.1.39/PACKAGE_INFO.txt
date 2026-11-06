@@ -1,0 +1,4 @@
+ESP32 Radar Tracker 1.1.39
+Incremental update based on 1.1.38.
+Fix: remove duplicate sweep-beam trails/reflections in web radar and reduce unused lower canvas area.
+Target markers and blue movement trails are preserved.
