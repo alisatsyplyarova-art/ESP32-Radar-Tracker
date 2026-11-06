@@ -1,0 +1,4 @@
+ESP32 Radar Tracker 1.1.37
+Incremental update based on 1.1.36.
+Fix: web radar now draws an animated cyan sweep beam when enabled in the web interface.
+Sweep toggle remains shared with TTGO and persistent in NVS.

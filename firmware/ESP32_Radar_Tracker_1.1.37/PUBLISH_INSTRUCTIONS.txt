@@ -1,0 +1,5 @@
+Если автоматическая публикация не выполнена, установите Git for Windows, распакуйте архив, откройте PowerShell в этой папке и выполните:
+
+powershell -ExecutionPolicy Bypass -File .\Publish_1.1.36_to_GitHub.ps1
+
+При запросе GitHub авторизуйтесь через Git Credential Manager. Скрипт создаёт новую папку версии и не изменяет предыдущие версии.
