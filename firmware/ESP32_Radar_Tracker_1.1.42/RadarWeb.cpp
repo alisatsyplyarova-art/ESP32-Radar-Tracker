@@ -63,7 +63,7 @@ function drawWebRadar(ts){
   g.stroke();
   g.restore();
  }
- for(let i=0;i<3;i++){const t=(ts||[])[i];if(!webTrailsEnabled||!t||!t.valid||!Array.isArray(t.trail)||t.trail.length<2)continue;
+ for(let i=0;i<3;i++){const t=(ts||[])[i];if(!webTrailsEnabled||!t||!Array.isArray(t.trail)||t.trail.length<2)continue;
   const pts=t.trail.slice().reverse().filter(p=>showRearTargets||p[1]>=0).map(p=>({x:cx+p[0]*scale,y:cy-p[1]*scale,age:p[2]||0}));
   g.lineWidth=4;g.lineCap='round';g.lineJoin='round';
   for(let k=1;k<pts.length;k++){const a=pts[k-1],b=pts[k];if(a.x<0||a.x>w||b.x<0||b.x>w||a.y<0||a.y>h||b.y<0||b.y>h)continue;const age=(a.age+b.age)/2,alpha=Math.max(0.25,0.82-0.48*age/trailLifetimeMs);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.strokeStyle=trailColors[i];g.globalAlpha=alpha;g.stroke();g.globalAlpha=1;}

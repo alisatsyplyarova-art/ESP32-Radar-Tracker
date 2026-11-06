@@ -51,7 +51,7 @@ void RadarTargets::update(const LD2450Target in[3], uint32_t now) {
     t.res = in[i].res; t.rawDist = in[i].dist;
     if (fresh) { t.sx = in[i].x; t.sy = in[i].y; t.trailCount = 0; t.trailHead = 0; }
     else { t.sx += TARGET_SMOOTH * (in[i].x - t.sx); t.sy += TARGET_SMOOTH * (in[i].y - t.sy); }
-    t.trail[t.trailHead] = { (int16_t)t.sx, (int16_t)t.sy, now };
+    t.trail[t.trailHead] = { (int16_t)t.sx, (int16_t)t.sy };
     t.trailHead = (t.trailHead + 1) % TRAIL_LEN;
     if (t.trailCount < TRAIL_LEN) t.trailCount++;
     t.active = true; t.lastSeenMs = now;
@@ -60,7 +60,7 @@ void RadarTargets::update(const LD2450Target in[3], uint32_t now) {
 
 void RadarTargets::expire(uint32_t now) {
   for (auto& t : t_)
-    if (t.active && (now - t.lastSeenMs) > TARGET_TIMEOUT_MS) { t.active = false; t.trailCount = 0; }
+    if (t.active && (now - t.lastSeenMs) > TARGET_TIMEOUT_MS) { t.active = false; /* keep timestamped trail until its configured lifetime expires or this slot is reused */ }
 }
 
 TargetState RadarTargets::stateOf(uint8_t i, uint32_t now) const {

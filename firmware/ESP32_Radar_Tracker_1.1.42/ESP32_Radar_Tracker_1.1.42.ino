@@ -68,15 +68,17 @@ static WebSample makeWebSample(uint32_t now, LinkState l1, LinkState l2) {
         w.targetX[i] = t.rawX;
         w.targetY[i] = t.rawY;
         w.targetCm[i] = (int16_t)(t.rawDist / 10.0f + 0.5f);
-        // trailAt() returns newest first; the browser renderer reverses it for drawing.
+      }
+      // Trails outlive the live marker; only their own configured age removes them.
+      if (inDistanceRange(t.rawDist)) {
         for (uint8_t k = 0; k < t.trailCount && k < TRAIL_LEN; ++k) {
           TrailPoint point;
           if (!RadarTargets::trailAt(t, k, point)) break;
           const uint32_t age = now - point.atMs;
           if (age > (uint32_t)RadarDisplay::trailSeconds(settings.trailTimeIdx) * 1000UL) continue;
-          w.targetTrailX[i][k] = point.x;
-          w.targetTrailY[i][k] = point.y;
-          w.targetTrailAgeMs[i][k] = (uint16_t)(age > 65535UL ? 65535UL : age);
+          w.targetTrailX[i][w.targetTrailCount[i]] = point.x;
+          w.targetTrailY[i][w.targetTrailCount[i]] = point.y;
+          w.targetTrailAgeMs[i][w.targetTrailCount[i]] = (uint16_t)(age > 65535UL ? 65535UL : age);
           w.targetTrailCount[i]++;
         }
       }

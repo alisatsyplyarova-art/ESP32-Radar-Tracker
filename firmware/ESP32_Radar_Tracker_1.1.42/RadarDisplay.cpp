@@ -189,8 +189,8 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
   float k = (float)R / rng;
   for (uint8_t i = 0; i < 3; i++) {
     TargetState st = tg.stateOf(i, c.now);
-    if (st == TS_NONE) continue;
     const TrackedTarget& tt = tg.get(i);
+    if (st == TS_NONE && (!c.set->trails || tt.trailCount < 2)) continue;
     uint16_t col = cSlot_[i]; // stable individual target color
     bool hit = thr && st == TS_LIVE && tt.rawDist < thr;
     // Target markers stay orange; the warning zone remains separately highlighted.
@@ -218,6 +218,7 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
         spr_.fillCircle(x2, y2, 1, trailCol);
       }
     }
+    if (st == TS_NONE) continue; // retain the fading trail after the live marker expires
     float dx = tt.sx * k, dy = -tt.sy * k;
     bool clamped = false;
     float d = sqrtf(dx * dx + dy * dy);
@@ -300,12 +301,11 @@ void RadarDisplay::render(const UiContext& c) {
     uint8_t visible = 0;
     for (uint8_t i = 0; i < 3; ++i) {
       const TargetState st = tg.stateOf(i, c.now);
-      if (st == TS_NONE) continue;
       const TrackedTarget& tt = tg.get(i);
+      if (st == TS_NONE && (!c.set->trails || tt.trailCount < 2)) continue;
       const int tx = ox + (int)(tt.rawX * k);
       const int ty = oy - (int)(tt.rawY * k);
       if (tx < 3 || tx >= W - 3 || ty < 27 || ty > oy) continue;
-      visible++;
       if (c.set->trails && tt.trailCount > 1) {
         for (int j = (int)tt.trailCount - 1; j >= 1; --j) {
           TrailPoint older, newer;
@@ -324,6 +324,8 @@ void RadarDisplay::render(const UiContext& c) {
           spr_.fillCircle(x2, y2, 1, trailCol);
         }
       }
+      if (st == TS_NONE) continue; // trail remains visible after the target marker expires
+      visible++;
       const uint16_t col = cSlot_[i];
       if (st == TS_HOLD) spr_.drawCircle(tx, ty, 5, scale(col, 120));
       else { spr_.fillCircle(tx, ty, 4, col); spr_.drawCircle(tx, ty, 6, cText_); }
