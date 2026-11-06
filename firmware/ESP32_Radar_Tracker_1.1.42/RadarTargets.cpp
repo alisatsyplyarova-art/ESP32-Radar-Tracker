@@ -51,7 +51,7 @@ void RadarTargets::update(const LD2450Target in[3], uint32_t now) {
     t.res = in[i].res; t.rawDist = in[i].dist;
     if (fresh) { t.sx = in[i].x; t.sy = in[i].y; t.trailCount = 0; t.trailHead = 0; }
     else { t.sx += TARGET_SMOOTH * (in[i].x - t.sx); t.sy += TARGET_SMOOTH * (in[i].y - t.sy); }
-    t.trail[t.trailHead] = { (int16_t)t.sx, (int16_t)t.sy };
+    t.trail[t.trailHead] = { (int16_t)t.sx, (int16_t)t.sy, now };
     t.trailHead = (t.trailHead + 1) % TRAIL_LEN;
     if (t.trailCount < TRAIL_LEN) t.trailCount++;
     t.active = true; t.lastSeenMs = now;
