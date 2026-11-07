@@ -1,4 +1,4 @@
-// ESP32 Radar Tracker 1.1.47 - Arduino IDE sketch (modules are in the sketch folder)
+// ESP32 Radar Tracker 1.1.48 - Arduino IDE sketch (modules are in the sketch folder)
 // BOARD MUST BE: Tools -> Board -> esp32 -> "ESP32 Dev Module" (core 3.x (or compatible ESP32 Arduino core)), NOT Arduino Uno/AVR.
 // TFT_eSPI: in User_Setup_Select.h enable  #include <User_Setups/TFT_eSPI_Setup25_TTGO_T_Display.h>
 // ESP32 Dual Radar LD2401 + LD2450 - LILYGO TTGO T-Display (classic ESP32)
@@ -31,7 +31,6 @@ static bool         buzzerEnabled = false;
 static bool         alarmActive = false;
 static uint8_t      zoneMask = 0x01; // front enabled by default
 static bool         rearFilterBypass = false; // hide targets behind the sensor by default
-static bool         webTrails = true; // independent web radar trail toggle
 static uint16_t     minRangeCm = 50, maxRangeCm = 500; // valid target distance, inclusive
 static LD2401Data   demoPres;
 
@@ -61,6 +60,7 @@ static void makeWebSample(WebSample& w, uint32_t now, LinkState l1, LinkState l2
   w = WebSample();
   if (l1 == LINK_OK) {
     w.sensor = 2; w.linkOk = true; w.frames = ld2450.stats().framesOk; w.bad = ld2450.stats().framesBad;
+    w.rawMask = ld2450.lastRawMask(); w.acceptedMask = ld2450.lastAcceptedMask();
     for (uint8_t i=0;i<3;i++) {
       const TrackedTarget& t = targets.get(i);
       const TargetState st = targets.stateOf(i, now);
@@ -176,7 +176,6 @@ void setup() {
   buzzerEnabled = prefs.getBool("buzzer", false);
   zoneMask = prefs.getUChar("zones", 0x01) & 0x0F;
   rearFilterBypass = prefs.getBool("rearBypass", false);
-  webTrails = prefs.getBool("webTrails", true);
     minRangeCm = prefs.getUShort("mincm", 50); maxRangeCm = prefs.getUShort("maxcm", 500);
   if (minRangeCm < 10 || minRangeCm >= maxRangeCm || maxRangeCm > 2000) { minRangeCm = 50; maxRangeCm = 500; }
   pinMode(PIN_ALARM_BUZZER, OUTPUT);
@@ -226,11 +225,10 @@ void loop() {
     else if (webAction.name == "buzzer") { buzzerEnabled = (v != 0); prefs.putBool("buzzer", buzzerEnabled); if (!buzzerEnabled) digitalWrite(PIN_ALARM_BUZZER, LOW); }
     else if (webAction.name == "zones") { zoneMask = (uint8_t)v & 0x0F; prefs.putUChar("zones", zoneMask); }
     else if (webAction.name == "rearfilter") { rearFilterBypass = (v != 0); prefs.putBool("rearBypass", rearFilterBypass); }
-    else if (webAction.name == "webtrails") { webTrails = (v != 0); prefs.putBool("webTrails", webTrails); }
+    else if (webAction.name == "trails") settings.trails = (v != 0);
     
     else if (webAction.name == "minrange") { if (v < maxRangeCm) { minRangeCm = (uint16_t)v; prefs.putUShort("mincm", minRangeCm); targets.clear(); } }
     else if (webAction.name == "maxrange") { if (v > minRangeCm) { maxRangeCm = (uint16_t)v; prefs.putUShort("maxcm", maxRangeCm); targets.clear(); } }
-    else if (webAction.name == "trails") settings.trails = (v != 0);
     else if (webAction.name == "trailtime") settings.trailSeconds = (uint16_t)v;
     else if (webAction.name == "sweep") settings.sweep = (v != 0);
     else if (webAction.name == "demo" && demoMode != (v != 0)) { demoMode = (v != 0); targets.clear(); Serial.println(demoMode ? F("[UI] DEMO mode ON (synthetic data)") : F("[UI] DEMO mode OFF (real data)")); }
@@ -248,7 +246,7 @@ void loop() {
     WebUiState u;
     u.screen = (uint8_t)screen; u.item = settings.item;
     u.rangeIdx = settings.rangeIdx; u.brightIdx = settings.brightIdx; u.theme = settings.theme; u.alertIdx = settings.alertIdx;
-    u.trails = settings.trails; u.trailSeconds = settings.trailSeconds; u.sweep = settings.sweep; u.demo = demoMode; u.buzzer = buzzerEnabled; u.zoneMask = zoneMask; u.rearFilterBypass = rearFilterBypass; u.webTrails = webTrails; u.webScaleIdx = (settings.rangeIdx == 3) ? 0 : (settings.rangeIdx == 5) ? 1 : 2; u.minRangeCm = minRangeCm; u.maxRangeCm = maxRangeCm;
+    u.trails = settings.trails; u.trailSeconds = settings.trailSeconds; u.sweep = settings.sweep; u.demo = demoMode; u.buzzer = buzzerEnabled; u.zoneMask = zoneMask; u.rearFilterBypass = rearFilterBypass; u.webTrails = settings.trails; u.webScaleIdx = (settings.rangeIdx == 3) ? 0 : (settings.rangeIdx == 5) ? 1 : 2; u.minRangeCm = minRangeCm; u.maxRangeCm = maxRangeCm;
     web.setUiState(u);
   }
 
