@@ -328,6 +328,7 @@ void loop() {
     if (demoMode) { c.presValid = true; c.pres = demoPres; }
     else { c.presValid = (l2 == LINK_OK); c.pres = ld2401.data(); uint16_t dcm = (c.pres.state == 1) ? c.pres.movDistCm : (c.pres.state == 2) ? c.pres.statDistCm : (c.pres.movDistCm ? c.pres.movDistCm : c.pres.statDistCm); if (dcm && (dcm < minRangeCm || dcm > maxRangeCm)) { c.pres.state = 0; c.pres.movDistCm = c.pres.statDistCm = c.pres.detDistCm = 0; } }
     c.uiFps = uiFps; c.set = &settings;
+    settings.zoneMask = zoneMask;
     display.render(c);
     fpsN++;
     if (now - fpsT0 >= 1000) { uiFps = fpsN * 1000.0f / (now - fpsT0); fpsN = 0; fpsT0 = now; }
