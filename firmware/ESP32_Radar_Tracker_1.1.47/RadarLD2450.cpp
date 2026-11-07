@@ -96,13 +96,18 @@ void RadarLD2450::feedByte(uint8_t b, uint32_t now) {
 void RadarLD2450::parseFrame(uint32_t now) {
   if (buf_[28] != 0x55 || buf_[29] != 0xCC) { link_.framesBad++; return; }
   LD2450Target t[3];
+  lastRawMask_ = 0; lastAcceptedMask_ = 0;
   for (int i = 0; i < 3; i++) {
     const uint8_t* p = &buf_[4 + 8 * i];
     uint16_t rx = p[0] | (p[1] << 8), ry = p[2] | (p[3] << 8);
     uint16_t rs = p[4] | (p[5] << 8), rr = p[6] | (p[7] << 8);
     if (!rx && !ry && !rs && !rr) continue;                    // empty slot
+    lastRawMask_ |= (uint8_t)(1u << i);
     int16_t x = decodeSigned(rx), y = decodeSigned(ry);
-    if (abs(x) > LD2450_MAX_ABS_X || y < 0 || y > LD2450_MAX_Y) { rejected_++; continue; }
+    // LD2450 reports signed Y: positive is in front, negative is behind.
+    // Keep both hemispheres; the rear visibility switch filters only presentation.
+    if (abs((int)x) > LD2450_MAX_ABS_X || abs((int)y) > LD2450_MAX_Y) { rejected_++; continue; }
+    lastAcceptedMask_ |= (uint8_t)(1u << i);
     t[i].valid = true; t[i].x = x; t[i].y = y;
     t[i].speed = decodeSigned(rs); t[i].res = rr;
     t[i].dist = sqrtf((float)x * x + (float)y * y);
