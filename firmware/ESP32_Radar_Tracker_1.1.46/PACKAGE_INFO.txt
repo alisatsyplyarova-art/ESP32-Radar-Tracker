@@ -1,0 +1,5 @@
+ESP32 Radar Tracker firmware 1.1.46
+Base: 1.1.45
+Board: TTGO T-Display (classic ESP32)
+Sensor: LD2401 or LD2450 (one sensor at a time)
+Alarm distance: Off or 1-6 m; four directional LD2450 sectors remain independently selectable.
