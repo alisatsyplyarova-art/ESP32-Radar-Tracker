@@ -32,6 +32,8 @@ public:
   LinkState link(uint32_t now) const { return link_.state(now); }
   const LinkMonitor& stats() const { return link_; }
   uint32_t rejected() const { return rejected_; }
+  uint8_t lastRawMask() const { return lastRawMask_; }
+  uint8_t lastAcceptedMask() const { return lastAcceptedMask_; }
   uint32_t baud() const { return baud_; }
   static int16_t decodeSigned(uint16_t raw) {
     int16_t m = (int16_t)(raw & 0x7FFF);
@@ -53,6 +55,7 @@ private:
   LD2450Target pending_[3];
   bool frameNew_ = false;
   uint32_t rejected_ = 0;
+  uint8_t lastRawMask_ = 0, lastAcceptedMask_ = 0;
   uint8_t cfgStep_ = 0;
   uint32_t cfgNext_ = 0;
 };
