@@ -1,0 +1,6 @@
+ESP32 Radar Tracker firmware 1.1.50
+Base: 1.1.49
+Board: TTGO T-Display (classic ESP32)
+Sensor: LD2401 or LD2450 (one sensor at a time)
+Fix: remove extra closing parenthesis in LD2450 rawMask JavaScript counter; restore execution of all web UI scripts.
+Retained: three target tracking, web X/Y coordinates, atomic distance filter, trails, 1-6 m alarm zones.

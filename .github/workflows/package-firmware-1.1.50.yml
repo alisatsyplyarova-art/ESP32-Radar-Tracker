@@ -1,0 +1,55 @@
+name: Package ESP32 Radar Tracker 1.1.50
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firmware/ESP32_Radar_Tracker_1.1.50/**'
+      - '.github/workflows/package-firmware-1.1.50.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact source revision
+        uses: actions/checkout@v4
+
+      - name: Verify version and JavaScript syntax
+        run: |
+          VERSION=$(sed -n 's/.*FIRMWARE_VERSION "\([^"]*\)".*/\1/p' firmware/ESP32_Radar_Tracker_1.1.50/Version.h)
+          test "$VERSION" = "1.1.50"
+          grep -q "$VERSION" firmware/ESP32_Radar_Tracker_1.1.50/VERSION.txt
+          test -f firmware/ESP32_Radar_Tracker_1.1.50/RadarLD2401.cpp
+          test -f firmware/ESP32_Radar_Tracker_1.1.50/RadarLD2450.cpp
+          test -f firmware/ESP32_Radar_Tracker_1.1.50/ESP32_Radar_Tracker_1.1.50.ino
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("firmware/ESP32_Radar_Tracker_1.1.50/RadarWeb.cpp")
+          s = p.read_text(encoding="utf-8")
+          start = s.index("<script>") + len("<script>")
+          end = s.index("</script>", start)
+          js = s[start:end]
+          assert "replace(/0/g,'').length))+'/'+ " not in js
+          Path("/tmp/radar-web.js").write_text(js, encoding="utf-8")
+          PY
+          node --check /tmp/radar-web.js
+
+      - name: Create Arduino IDE folder and ZIP
+        run: |
+          mkdir -p package/ESP32_Radar_Tracker_1.1.50
+          cp -R firmware/ESP32_Radar_Tracker_1.1.50/. package/ESP32_Radar_Tracker_1.1.50/
+          test -f package/ESP32_Radar_Tracker_1.1.50/ESP32_Radar_Tracker_1.1.50.ino
+          cd package
+          zip -r "../ESP32-Radar-Tracker-1.1.50-ArduinoIDE.zip" ESP32_Radar_Tracker_1.1.50
+          cd ..
+          unzip -t "ESP32-Radar-Tracker-1.1.50-ArduinoIDE.zip"
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESP32-Radar-Tracker-1.1.50-ArduinoIDE
+          path: ESP32-Radar-Tracker-1.1.50-ArduinoIDE.zip
+          if-no-files-found: error
