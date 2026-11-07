@@ -61,6 +61,7 @@ static void makeWebSample(WebSample& w, uint32_t now, LinkState l1, LinkState l2
   if (l1 == LINK_OK) {
     w.sensor = 2; w.linkOk = true; w.frames = ld2450.stats().framesOk; w.bad = ld2450.stats().framesBad;
     w.rawMask = ld2450.lastRawMask(); w.acceptedMask = ld2450.lastAcceptedMask();
+    w.rawMask = ld2450.lastRawMask(); w.acceptedMask = ld2450.lastAcceptedMask();
     for (uint8_t i=0;i<3;i++) {
       const TrackedTarget& t = targets.get(i);
       const TargetState st = targets.stateOf(i, now);
