@@ -455,8 +455,8 @@ void RadarDisplay::render(const UiContext& c) {
     snprintf(values[0], sizeof(values[0]), "%.1fm", rangeMm(s.rangeIdx) / 1000.0f);
     snprintf(values[1], sizeof(values[1]), "%u/5", s.brightIdx + 1);
     snprintf(values[2], sizeof(values[2]), "%s", th_[s.theme].name);
-    snprintf(values[3], sizeof(values[3]), "%s", kAlertMm[s.alertIdx % 4] ? "ON" : "OFF");
-    if (kAlertMm[s.alertIdx % 4]) snprintf(values[3], sizeof(values[3]), "%.1fm", kAlertMm[s.alertIdx % 4] / 1000.0f);
+    snprintf(values[3], sizeof(values[3]), "%s", kAlertMm[s.alertIdx % 7] ? "ON" : "OFF");
+    if (kAlertMm[s.alertIdx % 7]) snprintf(values[3], sizeof(values[3]), "%.1fm", kAlertMm[s.alertIdx % 7] / 1000.0f);
     snprintf(values[4], sizeof(values[4]), "%s", s.trails ? "ON" : "OFF");
     snprintf(values[5], sizeof(values[5]), "%us", s.trailSeconds);
     const char* names[kItems] = {"Range", "Bright", "Theme", "Alert", "Trails", "Trail time"};
@@ -632,8 +632,8 @@ void RadarDisplay::scrSettings(const UiContext& c) {
   snprintf(v[0], 16, "%.1f m", rangeMm(s.rangeIdx) / 1000.0f);
   snprintf(v[1], 16, "%d/5", s.brightIdx + 1);
   snprintf(v[2], 16, "%s", th_[s.theme].name);
-  snprintf(v[3], 16, "%s", kAlertMm[s.alertIdx % 4] ? "ON" : "OFF");
-  if (kAlertMm[s.alertIdx % 4]) snprintf(v[3], 16, "%.1f m", kAlertMm[s.alertIdx % 4] / 1000.0f);
+  snprintf(v[3], 16, "%s", kAlertMm[s.alertIdx % 7] ? "ON" : "OFF");
+  if (kAlertMm[s.alertIdx % 7]) snprintf(v[3], 16, "%.1f m", kAlertMm[s.alertIdx % 7] / 1000.0f);
   snprintf(v[4], 16, "%s", s.trails ? "ON" : "OFF");
   snprintf(v[5], 16, "%us", s.trailSeconds);
   const char* names[kItems] = {"Range", "Bright", "Theme", "Alert", "Trails", "Trail time"};
