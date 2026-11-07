@@ -32,7 +32,7 @@ jobs:
           start = s.index("<script>") + len("<script>")
           end = s.index("</script>", start)
           js = s[start:end]
-          assert "replace(/0/g,'').length))+'/'+ " not in js
+          assert "replace(/0/g,'').length))+'/'+" not in js
           Path("/tmp/radar-web.js").write_text(js, encoding="utf-8")
           PY
           node --check /tmp/radar-web.js
