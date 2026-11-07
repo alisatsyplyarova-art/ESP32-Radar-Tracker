@@ -1,4 +1,4 @@
-ESP32 Radar Tracker firmware 1.1.48
+ESP32 Radar Tracker firmware 1.1.49
 Base: 1.1.47
 Board: TTGO T-Display (classic ESP32)
 Sensor: LD2401 or LD2450 (one sensor at a time)
