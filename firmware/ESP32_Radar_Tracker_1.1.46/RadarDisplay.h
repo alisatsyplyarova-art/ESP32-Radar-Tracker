@@ -15,6 +15,7 @@ struct UiSettings {
   uint16_t trailSeconds = 5; // 1..300 seconds
   bool    sweep = false;
   uint8_t alertIdx = 0;    // 0 off, 1..6 -> 1 / 2 / 3 / 4 / 5 / 6 m alert zone
+  uint8_t zoneMask = 0x01; // bit0 front, bit1 left, bit2 right, bit3 rear
   uint8_t item = 0;        // selected row on SETTINGS
 };
 
