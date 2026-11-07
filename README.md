@@ -1,6 +1,6 @@
 # ESP32 Radar Tracker
 
-**Основная версия проекта: 1.1.48.** Исходники: [firmware/ESP32_Radar_Tracker_1.1.47](firmware/ESP32_Radar_Tracker_1.1.47/). Каталог сохранён по прежнему имени для совместимости с Arduino IDE; версия прошивки внутри — 1.1.48.
+**Основная версия проекта: 1.1.48.** Исходники: [firmware/ESP32_Radar_Tracker_1.1.48](firmware/ESP32_Radar_Tracker_1.1.48/). Каталог сохранён по прежнему имени для совместимости с Arduino IDE; версия прошивки внутри — 1.1.48.
 
 Проект для LILYGO TTGO T-Display (классический ESP32, ST7789 240×135) с одним датчиком HLK-LD2401 или HLK-LD2450.
 
@@ -11,7 +11,7 @@
 - Сохранены прогнозное сопровождение трёх целей, тревожные зоны 1–6 м и четыре сектора.
 
 ## Быстрый запуск
-1. Откройте папку [прошивки](firmware/ESP32_Radar_Tracker_1.1.47/) в Arduino IDE.
+1. Откройте папку [прошивки](firmware/ESP32_Radar_Tracker_1.1.48/) в Arduino IDE.
 2. Установите ESP32 core 3.3.12 и TFT_eSPI 2.5.43.
 3. Включите профиль `TFT_eSPI_Setup25_TTGO_T_Display.h`.
 4. Выберите **ESP32 Dev Module**, COM-порт и выполните Verify/Compile.
