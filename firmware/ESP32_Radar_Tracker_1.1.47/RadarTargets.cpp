@@ -1,4 +1,5 @@
 #include "RadarTargets.h"
+#include <math.h>
 void RadarTargets::clear() { for (auto& t : t_) t = TrackedTarget(); }
 bool RadarTargets::alive(const TrackedTarget& t, uint32_t now) { return t.active && (now - t.lastSeenMs) <= TARGET_TIMEOUT_MS; }
 
