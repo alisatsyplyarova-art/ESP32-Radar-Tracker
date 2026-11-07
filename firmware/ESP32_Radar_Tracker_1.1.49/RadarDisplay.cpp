@@ -267,7 +267,7 @@ void RadarDisplay::render(const UiContext& c) {
     const uint16_t radarCyan = tft_.color565(0, 210, 255);
     const uint16_t trailBlue = tft_.color565(0, 90, 255);
     const uint32_t rng = rangeMm(c.set->rangeIdx);
-    const int ox = 64, oy = H - 5, R = 62;
+    const int ox = W / 2, oy = H - 5, R = H - 29;
     const float k = (float)R / (float)rng;
     txt(5, 20, 1, th.dim, "LD2450  X/Y  RANGE %.1fm", rng / 1000.0f);
     // Six distance arcs and a forward axis.
@@ -312,7 +312,7 @@ void RadarDisplay::render(const UiContext& c) {
       if (st == TS_NONE && (!c.set->trails || tt.trailCount < 2)) continue;
       const int tx = ox + (int)(tt.rawX * k);
       const int ty = oy - (int)(tt.rawY * k);
-      if (tx < 3 || tx >= 128 || ty < 27 || ty > oy) continue;
+      if (tx < 3 || tx >= W - 3 || ty < 27 || ty > oy) continue;
       if (c.set->trails && tt.trailCount > 1) {
         for (int j = (int)tt.trailCount - 1; j >= 1; --j) {
           TrailPoint older, newer;
@@ -320,7 +320,7 @@ void RadarDisplay::render(const UiContext& c) {
               !RadarTargets::trailAt(tt, (uint8_t)(j - 1), newer)) continue;
           const int x1 = ox + (int)(older.x * k), y1 = oy - (int)(older.y * k);
           const int x2 = ox + (int)(newer.x * k), y2 = oy - (int)(newer.y * k);
-          if (x1 < 1 || x1 >= 128 || x2 < 1 || x2 >= 128 ||
+          if (x1 < 1 || x1 >= W - 1 || x2 < 1 || x2 >= W - 1 ||
               y1 < 25 || y1 > oy || y2 < 25 || y2 > oy) continue;
           const uint32_t ageMs = (RadarTargets::trailAgeMs(c.now, newer) + RadarTargets::trailAgeMs(c.now, older)) / 2;
           const uint32_t ttlMs = (uint32_t)c.set->trailSeconds * 1000UL;
@@ -339,19 +339,8 @@ void RadarDisplay::render(const UiContext& c) {
       txt(tx + 7, ty - 7, 1, col, "T%u", i + 1);
       txt(tx + 7, ty + 2, 1, cText_, "%.1fm", tt.rawDist / 1000.0f);
     }
-    // Dedicated coordinate column: always show all three LD2450 target slots.
-    spr_.drawFastVLine(129, 22, 108, scale(th.dim, 150));
-    txt(133, 23, 1, th.accent, "T   X(m)  Y(m)");
-    for (uint8_t i = 0; i < 3; ++i) {
-      const TargetState st = tg.stateOf(i, c.now);
-      const TrackedTarget& tt = tg.get(i);
-      const uint16_t col = st == TS_LIVE ? cSlot_[i] : (st == TS_HOLD ? scale(cSlot_[i], 145) : th.dim);
-      if (st == TS_NONE) txt(133, 43 + i * 23, 1, col, "%u   ---   ---", i + 1);
-      else txt(133, 43 + i * 23, 1, col, "%u %+.2f %+.2f", i + 1, tt.rawX / 1000.0f, tt.rawY / 1000.0f);
-    }
-    txt(133, 112, 1, th.dim, "LIVE %u/3", visible);
-    if (!visible) txtC(64, 78, 1, th.dim, "NO TARGETS");
-    txt(3, 121, 1, th.dim, "TOP VIEW | UP = FRONT");
+    if (!visible) txtC(120, 55, 2, th.dim, "NO TARGETS");
+    txt(5, 121, 1, th.dim, "TOP VIEW  |  UP = FRONT  |  3 TARGETS MAX");
   } else if (c.screen == SCR_PRESENCE || (c.screen == SCR_RADAR && c.presValid && l2401 == LINK_OK && l2450 != LINK_OK)) {
     // LD2401 interface based on the user's v1.0.004: fan-shaped 0..6 m range
     // rings with a 60-second distance history on the centreline. LD2401 has no bearing.
