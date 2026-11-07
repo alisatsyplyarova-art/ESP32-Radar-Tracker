@@ -14,8 +14,13 @@ uint16_t RadarDisplay::rangeMm(uint8_t i) { return kRangesMm[i % 7]; }
 bool RadarDisplay::alertActive(const UiContext& c) const {
   uint16_t thr = kAlertMm[c.set->alertIdx % 7];
   if (!thr) return false;
-  for (uint8_t i = 0; i < 3; i++)
-    if (c.targets->stateOf(i, c.now) == TS_LIVE && c.targets->get(i).rawDist < thr) return true;
+  for (uint8_t i = 0; i < 3; i++) {
+    if (c.targets->stateOf(i, c.now) != TS_LIVE) continue;
+    const TrackedTarget& t = c.targets->get(i);
+    const float ax = fabsf((float)t.rawX), ay = fabsf((float)t.rawY);
+    const uint8_t zone = (t.rawY < 0) ? 3 : (ax <= ay * 0.50f ? 0 : (t.rawX < 0 ? 1 : 2));
+    if ((c.set->zoneMask & (1u << zone)) && t.rawDist < thr) return true;
+  }
   // LD2401 (presence/distance only): alert if a detection is inside the zone
   if (c.presValid && c.pres.state) {
     uint16_t cm = (c.pres.state == 2) ? c.pres.statDistCm : (c.pres.movDistCm ? c.pres.movDistCm : c.pres.statDistCm);
@@ -192,7 +197,9 @@ void RadarDisplay::field(const UiContext& c, int ox, int oy, int R) {
     const TrackedTarget& tt = tg.get(i);
     if (st == TS_NONE && (!c.set->trails || tt.trailCount < 2)) continue;
     uint16_t col = cSlot_[i]; // stable individual target color
-    bool hit = thr && st == TS_LIVE && tt.rawDist < thr;
+    const float hitAx = fabsf((float)tt.rawX), hitAy = fabsf((float)tt.rawY);
+    const uint8_t hitZone = (tt.rawY < 0) ? 3 : (hitAx <= hitAy * 0.50f ? 0 : (tt.rawX < 0 ? 1 : 2));
+    bool hit = thr && st == TS_LIVE && (c.set->zoneMask & (1u << hitZone)) && tt.rawDist < thr;
     // Target markers stay orange; the warning zone remains separately highlighted.
     float delta = 0;                                   // phosphor fade: bright right after the beam passes
     if (true) {
