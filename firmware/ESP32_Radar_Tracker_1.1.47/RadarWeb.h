@@ -16,6 +16,7 @@ struct WebSample {
   uint8_t  state = 0;      // 0 none, 1 moving, 2 static, 3 both
   int16_t  energy = -1;    // percent; -1 = sensor does not report it (LD2450)
   uint32_t frames = 0, bad = 0;
+  uint8_t rawMask = 0, acceptedMask = 0;
   uint8_t  sensor = 0;     // 0 none, 1 LD2401, 2 LD2450
   bool targetValid[3] = {false,false,false};
   int16_t targetX[3] = {0,0,0}, targetY[3] = {0,0,0};
@@ -46,9 +47,8 @@ public:
   void loop();
   void sample(uint32_t now, const WebSample& s, int outLevel);
   void setUiState(const WebUiState& u) {
-    const bool wt = ui_.webTrails, rf = ui_.rearFilterBypass;
     ui_ = u;
-    ui_.webTrails = wt; ui_.rearFilterBypass = rf;
+    ui_.webTrails = u.trails;
     ui_.webScaleIdx = (u.rangeIdx == 3) ? 0 : (u.rangeIdx == 5) ? 1 : 2;
   }
   void setScreenBuffer(const uint16_t* pixels, uint16_t width, uint16_t height) { screenPixels_ = pixels; screenWidth_ = width; screenHeight_ = height; }
@@ -63,6 +63,7 @@ private:
   uint8_t head_=0, count_=0;
   uint32_t lastSample_=0;
   uint32_t frames_=0, bad_=0;
+  uint8_t rawMask_=0, acceptedMask_=0;
   uint8_t sensor_=0;
   bool targetValid_[3]={false,false,false}; int16_t targetX_[3]={0,0,0}, targetY_[3]={0,0,0};
   int16_t targetCm_[3][80] = {};
