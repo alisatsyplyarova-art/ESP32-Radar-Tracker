@@ -1,4 +1,4 @@
-// ESP32 Radar Tracker 1.1.48 - Arduino IDE sketch (modules are in the sketch folder)
+// ESP32 Radar Tracker 1.1.49 - Arduino IDE sketch (modules are in the sketch folder)
 // BOARD MUST BE: Tools -> Board -> esp32 -> "ESP32 Dev Module" (core 3.x (or compatible ESP32 Arduino core)), NOT Arduino Uno/AVR.
 // TFT_eSPI: in User_Setup_Select.h enable  #include <User_Setups/TFT_eSPI_Setup25_TTGO_T_Display.h>
 // ESP32 Dual Radar LD2401 + LD2450 - LILYGO TTGO T-Display (classic ESP32)
