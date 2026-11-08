@@ -45,7 +45,7 @@ public:
   void setTextDatum(uint8_t d){datum_=d;}
   void drawString(const char* s,int x,int y,uint8_t font){
     int scale=font>=2?2:1;int len=strlen(s);int width=len*6*scale;
-    if(datum_==2)x-=width/2; else if(datum_==1)x-=width;
+    if(datum_==1)x-=width/2; else if(datum_==2)x-=width;
     for(int n=0;s[n];n++){uint8_t col[5];glyph((char)s[n],col);for(int cx=0;cx<5;cx++)for(int cy=0;cy<7;cy++)if(col[cx]&(1<<cy))fillRect(x+n*6*scale+cx*scale,y+cy*scale,scale,scale,textColor_);}
   }
   const uint16_t* getPointer() const{return pixels_;}
