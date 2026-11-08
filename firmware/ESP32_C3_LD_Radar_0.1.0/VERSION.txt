@@ -1,0 +1,5 @@
+ESP32-C3 LD-Radar
+Version: C3-0.1.0
+Board: ESP32-C3 SuperMini
+Display: ST7735 1.77 inch, 160x128 landscape
+Sensor UART: GPIO20 RX / GPIO21 TX, 256000 8N1
