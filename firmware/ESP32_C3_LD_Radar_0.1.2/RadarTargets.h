@@ -13,6 +13,7 @@ struct TrackedTarget {
   float sx=0,sy=0;
   float vx=0,vy=0; // estimated X/Y velocity in mm/s, used for track prediction
   uint32_t lastSeenMs=0;
+  uint32_t lastTrailMs=0;
   TrailPoint trail[TRAIL_LEN];
   uint16_t trailCount=0,trailHead=0;
 };
