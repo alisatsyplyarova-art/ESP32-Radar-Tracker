@@ -1,0 +1,39 @@
+name: Build ESP32-C3 ST7735 display test
+
+on:
+  push:
+    branches: [ESP32-C3-LD-Radar]
+    paths:
+      - 'firmware/ESP32_C3_ST7735_Test_0.1.0/**'
+      - '.github/workflows/build-c3-st7735-test.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Configure ESP32 core
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.12
+      - name: Install TFT_eSPI and select display setup
+        run: |
+          arduino-cli lib install TFT_eSPI@2.5.43
+          mkdir -p "$HOME/Arduino/libraries/TFT_eSPI/User_Setups"
+          cp firmware/ESP32_C3_ST7735_Test_0.1.0/TFT_eSPI_Setup_ESP32_C3_ST7735.h "$HOME/Arduino/libraries/TFT_eSPI/User_Setups/User_Setup_C3_ST7735.h"
+          printf '#include <User_Setups/User_Setup_C3_ST7735.h>\n' > "$HOME/Arduino/libraries/TFT_eSPI/User_Setup_Select.h"
+      - name: Compile display test
+        run: arduino-cli compile --verbose --fqbn esp32:esp32:esp32c3 firmware/ESP32_C3_ST7735_Test_0.1.0
+      - name: Package test sketch
+        run: |
+          cd firmware
+          zip -qr ../ESP32-C3-ST7735-Test-0.1.0.zip ESP32_C3_ST7735_Test_0.1.0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ESP32-C3-ST7735-Test-0.1.0-ArduinoIDE
+          path: ESP32-C3-ST7735-Test-0.1.0.zip
+          if-no-files-found: error
