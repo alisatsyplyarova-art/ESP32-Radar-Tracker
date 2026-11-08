@@ -19,12 +19,12 @@ bool RadarDisplay::begin() {
   canvas_.push();
   Serial.printf("[UI] TFT ST7735, logical %dx%d, CS=%d DC=%d RST=%d SCK=%d MOSI=%d\n",
     W, H, PIN_TFT_CS, PIN_TFT_DC, PIN_TFT_RST, PIN_TFT_SCLK, PIN_TFT_MOSI);
-  th_[0] = {canvas_.color565(0,255,100),tft_.color565(70,150,95),tft_.color565(20,70,40),"GREEN"};
-  th_[1] = {tft_.color565(255,160,0),tft_.color565(190,125,35),tft_.color565(100,65,20),"AMBER"};
-  th_[2] = {tft_.color565(0,210,255),tft_.color565(0,100,130),tft_.color565(0,60,90),"CYAN"};
-  cBg_=TFT_BLACK; cText_=TFT_WHITE; cWarn_=tft_.color565(255,190,0);
-  cBad_=tft_.color565(255,60,60); cGood_=tft_.color565(60,255,120); cGray_=tft_.color565(120,120,120);
-  cSlot_[0]=tft_.color565(255,145,40); cSlot_[1]=tft_.color565(190,80,255); cSlot_[2]=tft_.color565(60,230,100);
+  th_[0] = {canvas_.color565(0,255,100),canvas_.color565(70,150,95),canvas_.color565(20,70,40),"GREEN"};
+  th_[1] = {canvas_.color565(255,160,0),canvas_.color565(190,125,35),canvas_.color565(100,65,20),"AMBER"};
+  th_[2] = {canvas_.color565(0,210,255),canvas_.color565(0,100,130),canvas_.color565(0,60,90),"CYAN"};
+  cBg_=TFT_BLACK; cText_=TFT_WHITE; cWarn_=canvas_.color565(255,190,0);
+  cBad_=canvas_.color565(255,60,60); cGood_=canvas_.color565(60,255,120); cGray_=canvas_.color565(120,120,120);
+  cSlot_[0]=canvas_.color565(255,145,40); cSlot_[1]=canvas_.color565(190,80,255); cSlot_[2]=canvas_.color565(60,230,100);
   spriteReady_=true;
   canvas_.clear(cBg_);
   canvas_.push();
