@@ -38,24 +38,29 @@ public:
     for(;;){drawPixel(x0,y0,c);if(x0==x1&&y0==y1)break;int e=2*err;if(e>=dy){err+=dy;x0+=sx;}if(e<=dx){err+=dx;y0+=sy;}}
   }
 
-  // Anti-aliased arc rasterizer. Coverage is blended into the existing framebuffer,
-  // avoiding the staircase effect of joining rounded integer coordinates with Bresenham.
-  void drawArcAA(int cx,int cy,float radius,float startDeg,float endDeg,uint16_t color,
-                 bool verticalAxis=false,float thickness=1.15f) {
-    if(radius<=0.0f)return;
-    const int pad=(int)(thickness+1.0f);
-    int x0=max(0,(int)floorf(cx-radius-pad)), x1=min((int)W-1,(int)ceilf(cx+radius+pad));
-    int y0=max(0,(int)floorf(cy-radius-pad)), y1=min((int)H-1,(int)ceilf(cy+radius+pad));
-    const float half=thickness*0.5f+0.5f;
-    for(int y=y0;y<=y1;y++) for(int x=x0;x<=x1;x++) {
-      const float dx=(float)x-cx, dy=(float)cy-y;
-      const float dist=sqrtf(dx*dx+dy*dy);
-      const float edge=fabsf(dist-radius);
-      if(edge>=half)continue;
-      float angle=verticalAxis?atan2f(dx,dy)*57.2957795f:atan2f(dy,dx)*57.2957795f;
-      if(angle<startDeg||angle>endDeg)continue;
-      const uint8_t alpha=(uint8_t)constrain((int)((half-edge)*255.0f+0.5f),0,255);
-      drawPixelAlpha(x,y,color,alpha);
+  // Midpoint/Bresenham circle arc, ported from the working ST7735 radar test.
+  // Eight-way symmetry keeps the curve uniform and avoids trig/segment joins.
+  // verticalAxis=false: angles 0..180 form the upper semicircle.
+  // verticalAxis=true: angles are measured from the vertical axis (LD2401 fan).
+  void drawArcMidpoint(int cx,int cy,int radius,float startDeg,float endDeg,
+                       uint16_t color,bool verticalAxis=false) {
+    if(radius<=0)return;
+    int x=radius,y=0,err=1-radius;
+    auto plot=[&](int px,int py) {
+      const float dx=(float)(px-cx), dy=(float)(cy-py);
+      const float angle=verticalAxis
+        ? atan2f(dx,dy)*57.2957795f
+        : atan2f(dy,dx)*57.2957795f;
+      if(angle>=startDeg && angle<=endDeg) drawPixel(px,py,color);
+    };
+    while(x>=y) {
+      plot(cx+x,cy+y); plot(cx+y,cy+x);
+      plot(cx-y,cy+x); plot(cx-x,cy+y);
+      plot(cx-x,cy-y); plot(cx-y,cy-x);
+      plot(cx+y,cy-x); plot(cx+x,cy-y);
+      ++y;
+      if(err<0) err+=2*y+1;
+      else { --x; err+=2*(y-x)+1; }
     }
   }
 
