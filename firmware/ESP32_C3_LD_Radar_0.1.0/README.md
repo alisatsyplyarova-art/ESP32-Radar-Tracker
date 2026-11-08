@@ -34,7 +34,7 @@
 2. Установить библиотеку TFT_eSPI 2.5.43.
 3. Открыть `ESP32_C3_LD_Radar_0.1.0.ino`.
 4. Выбрать плату **ESP32C3 Dev Module**.
-5. Для TFT_eSPI используется локальный профиль `TFT_eSPI_Setup_ESP32_C3_ST7735.h`, который подключается из `RadarDisplay.h`; глобальный `User_Setup_Select.h` библиотеки менять не требуется.
+5. Скопировать `TFT_eSPI_Setup_ESP32_C3_ST7735.h` в каталог `TFT_eSPI/User_Setups/` как `User_Setup_C3_ST7735.h` и в `TFT_eSPI/User_Setup_Select.h` оставить активной строку `#include <User_Setups/User_Setup_C3_ST7735.h>`. Профиль должен применяться также к исходникам самой библиотеки.
 6. Частота CPU 160 MHz, Flash 4 MB, USB CDC On Boot — Enabled (если используется native USB).
 
 ## Ограничения первой сборки
