@@ -3,7 +3,7 @@ on:
   push:
     branches: [ESP32-C3-DirectSPI-0.1.2]
     paths:
-      - 'firmware/ESP32_C3_LD_Radar_0.1.1/**'
+      - 'firmware/ESP32_C3_LD_Radar_0.1.2/**'
       - '.github/workflows/build-c3-directspi.yml'
   workflow_dispatch:
 jobs:
@@ -19,11 +19,11 @@ jobs:
           arduino-cli core update-index
           arduino-cli core install esp32:esp32@3.3.12
       - name: Compile complete firmware
-        run: arduino-cli compile --verbose --fqbn esp32:esp32:esp32c3 firmware/ESP32_C3_LD_Radar_0.1.1
+        run: arduino-cli compile --verbose --fqbn esp32:esp32:esp32c3 firmware/ESP32_C3_LD_Radar_0.1.2
       - name: Package Arduino IDE sketch
         run: |
           cd firmware
-          zip -qr ../ESP32-C3-LD-Radar-0.1.2-DirectSPI.zip ESP32_C3_LD_Radar_0.1.1
+          zip -qr ../ESP32-C3-LD-Radar-0.1.2-DirectSPI.zip ESP32_C3_LD_Radar_0.1.2
       - uses: actions/upload-artifact@v4
         with:
           name: ESP32-C3-LD-Radar-0.1.2-DirectSPI
