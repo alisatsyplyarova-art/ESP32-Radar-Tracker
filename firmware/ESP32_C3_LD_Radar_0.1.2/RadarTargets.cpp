@@ -63,7 +63,7 @@ void RadarTargets::update(const LD2450Target in[3], uint32_t now) {
     bool fresh=!t.active || (now-t.lastSeenMs)>TARGET_TIMEOUT_MS;
     if(fresh) {
       t.sx=in[i].x; t.sy=in[i].y; t.vx=0; t.vy=0;
-      t.trailCount=0; t.trailHead=0;
+      t.trailCount=0; t.trailHead=0; t.lastTrailMs=now-333UL;
     } else {
       uint32_t elapsed=now-t.lastSeenMs;
       if(elapsed>=20) {
@@ -78,9 +78,13 @@ void RadarTargets::update(const LD2450Target in[3], uint32_t now) {
     }
     t.rawX=in[i].x; t.rawY=in[i].y; t.speed=in[i].speed;
     t.res=in[i].res; t.rawDist=in[i].dist;
-    t.trail[t.trailHead]={(int16_t)t.sx,(int16_t)t.sy,(uint16_t)(now/100UL)};
-    t.trailHead=(t.trailHead+1)%TRAIL_LEN;
-    if(t.trailCount<TRAIL_LEN)t.trailCount++;
+    // Keep a 5-minute history without storing every 10 Hz UART update.
+    if((uint32_t)(now-t.lastTrailMs)>=333UL){
+      t.trail[t.trailHead]={(int16_t)t.sx,(int16_t)t.sy,(uint16_t)(now/100UL)};
+      t.trailHead=(t.trailHead+1)%TRAIL_LEN;
+      if(t.trailCount<TRAIL_LEN)t.trailCount++;
+      t.lastTrailMs=now;
+    }
     t.active=true; t.lastSeenMs=now;
   }
 }
