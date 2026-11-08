@@ -39,7 +39,7 @@
 #define TARGET_HOLD_MS     300
 #define TARGET_TIMEOUT_MS  1000
 #define TARGET_SMOOTH      0.45f
-#define TRAIL_LEN          1800
+#define TRAIL_LEN          900  // 5 min at one stored point every 333 ms
 #define WEB_TRAIL_LEN      180
 #define TARGET_MATCH_GATE_MM 800
 #define LD2450_MAX_ABS_X   4000
