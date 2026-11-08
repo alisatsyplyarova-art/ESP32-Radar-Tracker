@@ -1,4 +1,4 @@
-// ESP32-C3 LD-Radar C3-0.1.2 - Arduino IDE sketch (modules are in the sketch folder)
+// ESP32-C3 LD-Radar 3.0.12 - Arduino IDE sketch (modules are in the sketch folder)
 // BOARD MUST BE: Tools -> Board -> esp32 -> "ESP32 Dev Module" (core 3.x (or compatible ESP32 Arduino core)), NOT Arduino Uno/AVR.
 // ESP32 Dual Radar LD2401 + LD2450 - ESP32-C3 SuperMini + ST7735 (classic ESP32)
 //  Both sensors share UART1 (GPIO20 RX / GPIO21 TX, 256000 8N1); connect ONE at a time.
@@ -169,7 +169,7 @@ static void onButtons(uint32_t now) {
 void setup() {
   Serial.begin(115200);
   delay(200);
-  Serial.println(F("\n=== ESP32-C3 LD-Radar C3-0.1.2 | shared UART LD2401/LD2450 | ST7735 160x128 ==="));
+  Serial.println(F("\n=== ESP32-C3 LD-Radar 3.0.12 | shared UART LD2401/LD2450 | ST7735 160x128 ==="));
   Serial.printf("[BOOT] reset reason %d, free heap %u, largest block %u\n",
                 (int)esp_reset_reason(), (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMaxAllocHeap());
   prefs.begin("radar", false);

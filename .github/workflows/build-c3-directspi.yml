@@ -1,9 +1,9 @@
 name: Build ESP32-C3 LD-Radar Direct SPI
 on:
   push:
-    branches: [ESP32-C3-DirectSPI-0.1.2]
+    branches: [ESP32-C3-LD-Radar-3.0.12]
     paths:
-      - 'firmware/ESP32_C3_LD_Radar_0.1.2/**'
+      - 'firmware/ESP32_C3_LD_Radar_3.0.12/**'
       - '.github/workflows/build-c3-directspi.yml'
   workflow_dispatch:
 jobs:
@@ -19,13 +19,13 @@ jobs:
           arduino-cli core update-index
           arduino-cli core install esp32:esp32@3.3.12
       - name: Compile complete firmware
-        run: arduino-cli compile --verbose --fqbn esp32:esp32:esp32c3 firmware/ESP32_C3_LD_Radar_0.1.2
+        run: arduino-cli compile --verbose --fqbn esp32:esp32:esp32c3 firmware/ESP32_C3_LD_Radar_3.0.12
       - name: Package Arduino IDE sketch
         run: |
           cd firmware
-          zip -qr ../ESP32-C3-LD-Radar-0.1.2-DirectSPI.zip ESP32_C3_LD_Radar_0.1.2
+          zip -qr ../ESP32-C3-LD-Radar-3.0.12.zip ESP32_C3_LD_Radar_3.0.12
       - uses: actions/upload-artifact@v4
         with:
-          name: ESP32-C3-LD-Radar-0.1.2-DirectSPI
-          path: ESP32-C3-LD-Radar-0.1.2-DirectSPI.zip
+          name: ESP32-C3-LD-Radar-3.0.12
+          path: ESP32-C3-LD-Radar-3.0.12.zip
           if-no-files-found: error

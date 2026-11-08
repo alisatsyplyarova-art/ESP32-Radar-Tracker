@@ -1,4 +1,4 @@
-# ESP32-C3 LD-Radar 0.1.1 — Direct SPI
+# ESP32-C3 LD-Radar 3.0.12 — Direct SPI
 
 Полная версия переноса LD-Radar на **ESP32-C3 SuperMini + TFT ST7735 1.77″ (160×128)**. Драйвер экрана реализован непосредственно через SPI и собственный framebuffer. **TFT_eSPI не нужен.**
 
@@ -30,7 +30,7 @@ LEDA подсветки запитана от адаптера; отдельны
 ## Сборка Arduino IDE
 
 1. Установить ESP32 Arduino core **3.3.12**.
-2. Открыть файл `ESP32_C3_LD_Radar_0.1.1.ino` из этой папки.
+2. Открыть файл `ESP32_C3_LD_Radar_3.0.12.ino` из этой папки.
 3. Выбрать **ESP32C3 Dev Module**.
 4. Рекомендуемые параметры: CPU 160 MHz, Flash 4 MB, USB CDC On Boot — Enabled (если используется native USB).
 5. Скомпилировать и загрузить прошивку.
