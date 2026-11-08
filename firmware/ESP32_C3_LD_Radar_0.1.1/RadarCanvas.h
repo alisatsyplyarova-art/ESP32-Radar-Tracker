@@ -8,7 +8,7 @@ class RadarCanvas {
 public:
   static constexpr int16_t W=160, H=128;
   bool begin() {
-    pinMode(PIN_TFT_RST,OUTPUT); digitalWrite(PIN_TFT_RST,HIGH); delay(5);
+    pinMode(PIN_TFT_CS,OUTPUT); pinMode(PIN_TFT_DC,OUTPUT); pinMode(PIN_TFT_RST,OUTPUT); digitalWrite(PIN_TFT_CS,HIGH); digitalWrite(PIN_TFT_DC,HIGH); digitalWrite(PIN_TFT_RST,HIGH); delay(5);
     digitalWrite(PIN_TFT_RST,LOW); delay(20); digitalWrite(PIN_TFT_RST,HIGH); delay(120);
     SPI.begin(PIN_TFT_SCLK,-1,PIN_TFT_MOSI,PIN_TFT_CS);
     SPI.beginTransaction(SPISettings(10000000,MSBFIRST,SPI_MODE0));
