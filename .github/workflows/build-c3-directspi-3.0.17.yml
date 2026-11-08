@@ -1,0 +1,31 @@
+name: Build ESP32-C3 LD-Radar 3.0.17
+on:
+  push:
+    branches: [ESP32-C3-LD-Radar-3.0.17]
+    paths:
+      - 'firmware/ESP32_C3_LD_Radar_3.0.17/**'
+      - '.github/workflows/build-c3-directspi-3.0.17.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Configure ESP32 core
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.12
+      - name: Compile complete firmware
+        run: arduino-cli compile --verbose --fqbn esp32:esp32:esp32c3 --output-dir build firmware/ESP32_C3_LD_Radar_3.0.17
+      - name: Package source folder only
+        run: |
+          cd firmware
+          zip -qr ../ESP32_C3_LD_Radar_3.0.17.zip ESP32_C3_LD_Radar_3.0.17
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ESP32_C3_LD_Radar_3.0.17
+          path: ESP32_C3_LD_Radar_3.0.17.zip
+          if-no-files-found: error
