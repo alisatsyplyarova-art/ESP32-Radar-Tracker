@@ -126,37 +126,50 @@ void RadarDisplay::render(const UiContext& c) {
     txt(3,17,1,th.dim,"LD2450 / X-Y / %.1fm",(float)rng/1000.0f);
     if(c.targets->liveCount(c.now)==0)txtC(80,61,1,th.dim,"NO TARGETS");
   } else if(c.screen==SCR_RADAR || c.screen==SCR_PRESENCE || l2401==LINK_OK) {
-    // LD2401 is a one-dimensional presence sensor; show distance on a fan, not fake X/Y.
-    const int ox=80,oy=118,R=88; const uint16_t rng=rangeMm(c.set->rangeIdx);
+    // LD2401: dedicated one-dimensional presence display, not an X/Y target plot.
+    const int ox=80,oy=119,R=82; const uint16_t rng=rangeMm(c.set->rangeIdx);
     const LD2401Data& d=c.pres;
-    static int16_t hist[32]; static uint8_t head=0,count=0; static uint32_t last=0;
-    if(c.presValid&&c.now-last>=500) {
-      last=c.now; uint16_t cm=d.state==2?d.statDistCm:(d.movDistCm?d.movDistCm:d.statDistCm);
-      hist[head]=(!d.state||!cm)?-1:(int16_t)cm; head=(head+1)%32; if(count<32)count++;
+    static int16_t hist[24]; static uint8_t head=0,count=0; static uint32_t last=0;
+    uint16_t cm=d.state==2?d.statDistCm:(d.movDistCm?d.movDistCm:d.statDistCm);
+    uint8_t energy=d.state==2?d.statEnergy:d.movEnergy;
+    if(c.presValid&&c.now-last>=350) {
+      last=c.now; hist[head]=(!d.state||!cm)?-1:(int16_t)cm; head=(head+1)%24; if(count<24)count++;
     }
+    // Header strip and compact telemetry.
+    canvas_.fillRect(0,15,W,14,scale(th.accent,35));
+    txt(4,17,1,th.accent,"LD2401  /  PRESENCE");
+    txt(119,17,1,linkCol(l2401),"%s",c.presValid?"ONLINE":"OFFLINE");
+    // Radar fan with four range rings and three bearing guides.
     for(int ring=1;ring<=4;ring++) {
-      int rr=R*ring/4, px=ox+(int)(rr*sinf(-60*kDeg)), py=oy-(int)(rr*cosf(-60*kDeg));
+      int rr=R*ring/4,px=ox+(int)(rr*sinf(-60*kDeg)),py=oy-(int)(rr*cosf(-60*kDeg));
       for(int a=-57;a<=60;a+=3) {
         int nx=ox+(int)(rr*sinf(a*kDeg)),ny=oy-(int)(rr*cosf(a*kDeg));
-        canvas_.drawLine(px,py,nx,ny,scale(th.accent,ring==4?180:85));px=nx;py=ny;
+        canvas_.drawLine(px,py,nx,ny,scale(th.accent,ring==4?190:75));px=nx;py=ny;
       }
+      if(ring==2||ring==4)txt(ox+4,oy-rr-8,1,th.dim,"%.1fm",(float)rng*ring/4000.0f);
     }
-    canvas_.drawLine(ox,oy,ox+(int)(R*sinf(-60*kDeg)),oy-(int)(R*cosf(-60*kDeg)),th.accent);
-    canvas_.drawLine(ox,oy,ox+(int)(R*sinf(60*kDeg)),oy-(int)(R*cosf(60*kDeg)),th.accent);
-    int maxCm=rng/10;
+    for(int a=-60;a<=60;a+=30) {
+      int ex=ox+(int)(R*sinf(a*kDeg)),ey=oy-(int)(R*cosf(a*kDeg));
+      canvas_.drawLine(ox,oy,ex,ey,scale(th.accent,a==0?150:65));
+    }
+    // Historical detections are dim; the latest valid return is bright orange.
     for(uint8_t i=0;i<count;i++) {
-      int16_t cm=hist[(head+32-count+i)%32]; if(cm<=0||cm>maxCm)continue;
-      int rr=4+(int)cm*(R-4)/maxCm;
-      canvas_.fillCircle(ox,oy-rr,i==count-1?3:1,i==count-1?cSlot_[0]:scale(cSlot_[0],100));
+      int16_t hcm=hist[(head+24-count+i)%24]; if(hcm<=0||hcm>rng/10)continue;
+      int rr=4+(int)hcm*(R-4)/(rng/10);
+      canvas_.fillCircle(ox,oy-rr,1,scale(cSlot_[0],85));
     }
-    uint16_t cm=d.state==2?d.statDistCm:(d.movDistCm?d.movDistCm:d.statDistCm);
-    if(c.presValid&&cm>0&&cm<=maxCm) {
-      int yy=oy-(4+(int)cm*(R-4)/maxCm);
-      canvas_.drawFastHLine(ox-6,yy,13,cSlot_[0]);canvas_.fillCircle(ox,yy,3,cSlot_[0]);
+    if(c.presValid&&d.state&&cm>0&&cm<=rng/10) {
+      int yy=oy-(4+(int)cm*(R-4)/(rng/10));
+      canvas_.drawFastHLine(ox-9,yy,19,cSlot_[0]);canvas_.fillCircle(ox,yy,4,cSlot_[0]);canvas_.drawCircle(ox,yy,6,TFT_WHITE);
     }
-    txt(3,17,1,th.dim,"LD2401 / PRESENCE");
-    txt(3,108,1,c.presValid?(d.state?cWarn_:cGood_):cBad_,"%s",c.presValid?RadarLD2401::stateStr(d.state):"NO DATA");
-    txt(100,108,1,cText_,"%ucm",c.presValid?cm:0);
+    canvas_.fillCircle(ox,oy,4,cText_);
+    // Footer: state, measured range and signal energy.
+    const char* state=!c.presValid?"NO LINK":d.state==1?"MOVING":d.state==2?"STATIC":d.state==3?"MOV + STATIC":"CLEAR";
+    txt(3,103,1,c.presValid?(d.state?cWarn_:cGood_):cBad_,"%s",state);
+    if(c.presValid&&d.state&&cm>0)txt(95,101,2,cSlot_[0],"%.2fm",cm/100.0f);
+    else txt(104,103,1,th.dim,"--.--m");
+    txt(3,116,1,th.dim,"RANGE %.1fm",rng/1000.0f);
+    bar(105,117,49,7,c.presValid?energy:0,100,cSlot_[0]);
   } else if(c.screen==SCR_TARGETS) {
     txt(4,19,1,th.dim,"LD2450 TARGETS");
     for(uint8_t i=0;i<3;i++) {
