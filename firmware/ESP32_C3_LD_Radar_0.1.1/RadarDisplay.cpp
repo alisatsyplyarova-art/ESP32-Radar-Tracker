@@ -41,18 +41,18 @@ uint16_t RadarDisplay::scale(uint16_t c,uint8_t f) const {
 }
 void RadarDisplay::txt(int x,int y,uint8_t font,uint16_t col,const char* fmt,...) {
   char b[48]; va_list a; va_start(a,fmt); vsnprintf(b,sizeof(b),fmt,a); va_end(a);
-  canvas_.setTextColor(col); spr_.setTextDatum(TL_DATUM); spr_.drawString(b,x,y,font);
+  canvas_.setTextColor(col); canvas_.setTextDatum(TL_DATUM); canvas_.drawString(b,x,y,font);
 }
 void RadarDisplay::txtC(int x,int y,uint8_t font,uint16_t col,const char* fmt,...) {
   char b[48]; va_list a; va_start(a,fmt); vsnprintf(b,sizeof(b),fmt,a); va_end(a);
-  spr_.setTextColor(col); spr_.setTextDatum(TC_DATUM); spr_.drawString(b,x,y,font);
+  canvas_.setTextColor(col); canvas_.setTextDatum(TC_DATUM); canvas_.drawString(b,x,y,font);
 }
 uint16_t RadarDisplay::linkCol(LinkState s) const {
   switch(s) { case LINK_OK:return cGood_; case LINK_LOST:return cWarn_; case LINK_GARBAGE:return cBad_; default:return cGray_; }
 }
 void RadarDisplay::bar(int x,int y,int w,int h,int val,int maxv,uint16_t col) {
-  if(maxv<=0)return; spr_.drawRect(x,y,w,h,scale(col,130));
-  int fw=constrain(val,0,maxv)*(w-2)/maxv; if(fw>0)spr_.fillRect(x+1,y+1,fw,h-2,col);
+  if(maxv<=0)return; canvas_.drawRect(x,y,w,h,scale(col,130));
+  int fw=constrain(val,0,maxv)*(w-2)/maxv; if(fw>0)canvas_.fillRect(x+1,y+1,fw,h-2,col);
 }
 bool RadarDisplay::alertActive(const UiContext& c) const {
   if(!c.set||!c.targets)return false;
@@ -73,13 +73,13 @@ bool RadarDisplay::alertActive(const UiContext& c) const {
 void RadarDisplay::render(const UiContext& c) {
   if(!spriteReady_||!c.set||!c.targets||!c.ld2450||!c.ld2401)return;
   const Theme& th=th_[c.set->theme%3];
-  spr_.fillSprite(cBg_);
+  canvas_.clear(cBg_);
   const LinkState l2450=c.ld2450->link(c.now), l2401=c.ld2401->link(c.now);
   const bool alert=alertActive(c);
-  spr_.fillRect(0,0,W,15,alert?scale(cBad_,100):scale(th.accent,45));
+  canvas_.fillRect(0,0,W,15,alert?scale(cBad_,100):scale(th.accent,45));
   txt(3,1,1,alert?cBad_:th.accent,"%s",alert?"! ALERT":(c.demo?"LD-RADAR C3 DEMO":"LD-RADAR C3"));
-  spr_.fillCircle(143,7,3,linkCol(l2450==LINK_OK?LINK_OK:(l2401==LINK_OK?LINK_NO_DATA:l2450)));
-  spr_.fillCircle(153,7,3,linkCol(l2401==LINK_OK?LINK_OK:(l2450==LINK_OK?LINK_NO_DATA:l2401)));
+  canvas_.fillCircle(143,7,3,linkCol(l2450==LINK_OK?LINK_OK:(l2401==LINK_OK?LINK_NO_DATA:l2450)));
+  canvas_.fillCircle(153,7,3,linkCol(l2401==LINK_OK?LINK_OK:(l2450==LINK_OK?LINK_NO_DATA:l2401)));
 
   if(c.screen==SCR_RADAR && l2450==LINK_OK) {
     const int ox=80, oy=120, R=92;
@@ -88,17 +88,17 @@ void RadarDisplay::render(const UiContext& c) {
       int rr=R*ring/5, px=ox-rr, py=oy;
       for(int a=180;a>=0;a-=3) {
         float q=a*kDeg; int nx=ox+(int)(rr*cosf(q)), ny=oy-(int)(rr*sinf(q));
-        spr_.drawLine(px,py,nx,ny,scale(th.accent,ring==5?180:85)); px=nx;py=ny;
+        canvas_.drawLine(px,py,nx,ny,scale(th.accent,ring==5?180:85)); px=nx;py=ny;
       }
       if(rr>12) txt(ox+3,oy-rr-7,1,th.dim,"%.1fm",(float)rng*ring/5000.0f);
     }
-    spr_.drawLine(ox-R,oy,ox+R,oy,th.accent);
-    spr_.drawLine(ox,oy-R,ox,oy,scale(th.accent,160));
+    canvas_.drawLine(ox-R,oy,ox+R,oy,th.accent);
+    canvas_.drawLine(ox,oy-R,ox,oy,scale(th.accent,160));
     if(c.set->sweep) {
       float phase=(c.now%SWEEP_PERIOD_MS)/(float)SWEEP_PERIOD_MS;
       float a=(-60.0f+120.0f*phase)*kDeg;
       int bx=ox+(int)(R*sinf(a)), by=oy-(int)(R*cosf(a));
-      spr_.drawLine(ox,oy,bx,by,th.accent);
+      canvas_.drawLine(ox,oy,bx,by,th.accent);
     }
     for(uint8_t i=0;i<3;i++) {
       const TrackedTarget& t=c.targets->get(i); TargetState st=c.targets->stateOf(i,c.now);
@@ -113,14 +113,14 @@ void RadarDisplay::render(const UiContext& c) {
           int x1=ox+(int)(a.x*k),y1=oy-(int)(a.y*k),x2=ox+(int)(b.x*k),y2=oy-(int)(b.y*k);
           if(x1<1||x1>=W-1||x2<1||x2>=W-1||y1<17||y1>oy||y2<17||y2>oy)continue;
           uint16_t faded=scale(col,(uint8_t)constrain(170-(int)(age*90UL/((uint32_t)c.set->trailSeconds*1000UL)),70,170));
-          spr_.drawLine(x1,y1,x2,y2,faded);
+          canvas_.drawLine(x1,y1,x2,y2,faded);
         }
       }
       if(st==TS_NONE)continue;
       int x=ox+(int)(t.rawX*k), y=oy-(int)(t.rawY*k);
       if(x<3||x>W-3||y<18||y>oy)continue;
-      if(st==TS_HOLD)spr_.drawCircle(x,y,4,scale(col,120));
-      else {spr_.fillCircle(x,y,3,col);spr_.drawCircle(x,y,5,TFT_WHITE);}
+      if(st==TS_HOLD)canvas_.drawCircle(x,y,4,scale(col,120));
+      else {canvas_.fillCircle(x,y,3,col);canvas_.drawCircle(x,y,5,TFT_WHITE);}
       txt(x+5,y-7,1,col,"T%u",i+1);
     }
     txt(3,17,1,th.dim,"LD2450 / X-Y / %.1fm",(float)rng/1000.0f);
@@ -138,21 +138,21 @@ void RadarDisplay::render(const UiContext& c) {
       int rr=R*ring/4, px=ox+(int)(rr*sinf(-60*kDeg)), py=oy-(int)(rr*cosf(-60*kDeg));
       for(int a=-57;a<=60;a+=3) {
         int nx=ox+(int)(rr*sinf(a*kDeg)),ny=oy-(int)(rr*cosf(a*kDeg));
-        spr_.drawLine(px,py,nx,ny,scale(th.accent,ring==4?180:85));px=nx;py=ny;
+        canvas_.drawLine(px,py,nx,ny,scale(th.accent,ring==4?180:85));px=nx;py=ny;
       }
     }
-    spr_.drawLine(ox,oy,ox+(int)(R*sinf(-60*kDeg)),oy-(int)(R*cosf(-60*kDeg)),th.accent);
-    spr_.drawLine(ox,oy,ox+(int)(R*sinf(60*kDeg)),oy-(int)(R*cosf(60*kDeg)),th.accent);
+    canvas_.drawLine(ox,oy,ox+(int)(R*sinf(-60*kDeg)),oy-(int)(R*cosf(-60*kDeg)),th.accent);
+    canvas_.drawLine(ox,oy,ox+(int)(R*sinf(60*kDeg)),oy-(int)(R*cosf(60*kDeg)),th.accent);
     int maxCm=rng/10;
     for(uint8_t i=0;i<count;i++) {
       int16_t cm=hist[(head+32-count+i)%32]; if(cm<=0||cm>maxCm)continue;
       int rr=4+(int)cm*(R-4)/maxCm;
-      spr_.fillCircle(ox,oy-rr,i==count-1?3:1,i==count-1?cSlot_[0]:scale(cSlot_[0],100));
+      canvas_.fillCircle(ox,oy-rr,i==count-1?3:1,i==count-1?cSlot_[0]:scale(cSlot_[0],100));
     }
     uint16_t cm=d.state==2?d.statDistCm:(d.movDistCm?d.movDistCm:d.statDistCm);
     if(c.presValid&&cm>0&&cm<=maxCm) {
       int yy=oy-(4+(int)cm*(R-4)/maxCm);
-      spr_.drawFastHLine(ox-6,yy,13,cSlot_[0]);spr_.fillCircle(ox,yy,3,cSlot_[0]);
+      canvas_.drawFastHLine(ox-6,yy,13,cSlot_[0]);canvas_.fillCircle(ox,yy,3,cSlot_[0]);
     }
     txt(3,17,1,th.dim,"LD2401 / PRESENCE");
     txt(3,108,1,c.presValid?(d.state?cWarn_:cGood_):cBad_,"%s",c.presValid?RadarLD2401::stateStr(d.state):"NO DATA");
@@ -187,7 +187,7 @@ void RadarDisplay::render(const UiContext& c) {
     snprintf(vals[3],12,"%s",c.set->alertIdx?"ON":"OFF");
     snprintf(vals[4],12,"%s",c.set->trails?"ON":"OFF");
     snprintf(vals[5],12,"%us",c.set->trailSeconds);
-    for(int i=0;i<6;i++){int y=20+i*16;if(i==c.set->item)spr_.fillRect(2,y-1,156,14,scale(th.accent,50));txt(5,y,1,cText_,"%s",names[i]);txt(112,y,1,th.accent,"%s",vals[i]);}
+    for(int i=0;i<6;i++){int y=20+i*16;if(i==c.set->item)canvas_.fillRect(2,y-1,156,14,scale(th.accent,50));txt(5,y,1,cText_,"%s",names[i]);txt(112,y,1,th.accent,"%s",vals[i]);}
     txt(4,118,1,th.dim,"Use web page to change");
   } else if(c.screen==SCR_WIFI) {
     bool connected=WiFi.status()==WL_CONNECTED;
@@ -198,5 +198,5 @@ void RadarDisplay::render(const UiContext& c) {
     txt(4,81,1,th.accent,"AP: %s",WiFi.softAPIP().toString().c_str());
   }
   if(c.demo)txt(4,119,1,cWarn_,"DEMO");
-  spr_.pushSprite(0,0);
+  canvas_.push();
 }
