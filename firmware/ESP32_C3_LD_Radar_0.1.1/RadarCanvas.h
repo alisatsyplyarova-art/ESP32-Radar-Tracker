@@ -24,12 +24,12 @@ public:
   uint16_t color565(uint8_t r,uint8_t g,uint8_t b) const { return (uint16_t(r&0xF8)<<8)|(uint16_t(g&0xFC)<<3)|(b>>3); }
   void clear(uint16_t c){ for(int i=0;i<W*H;i++) pixels_[i]=c; }
   void fillRect(int x,int y,int w,int h,uint16_t c){
-    int x0=max(0,x),y0=max(0,y),x1=min(W,x+w),y1=min(H,y+h);
+    int x0=(x<0?0:x),y0=(y<0?0:y),x1=((x+w)>W?W:(x+w)),y1=((y+h)>H?H:(y+h));
     for(int yy=y0;yy<y1;yy++) for(int xx=x0;xx<x1;xx++) pixels_[yy*W+xx]=c;
   }
   void drawRect(int x,int y,int w,int h,uint16_t c){ drawFastHLine(x,y,w,c);drawFastHLine(x,y+h-1,w,c);drawFastVLine(x,y,h,c);drawFastVLine(x+w-1,y,h,c); }
-  void drawFastHLine(int x,int y,int w,uint16_t c){ if(y<0||y>=H)return; int a=max(0,x),b=min(W,x+w);for(int i=a;i<b;i++)pixels_[y*W+i]=c; }
-  void drawFastVLine(int x,int y,int h,uint16_t c){ if(x<0||x>=W)return;int a=max(0,y),b=min(H,y+h);for(int i=a;i<b;i++)pixels_[i*W+x]=c; }
+  void drawFastHLine(int x,int y,int w,uint16_t c){ if(y<0||y>=H)return; int a=(x<0?0:x),b=((x+w)>W?W:(x+w));for(int i=a;i<b;i++)pixels_[y*W+i]=c; }
+  void drawFastVLine(int x,int y,int h,uint16_t c){ if(x<0||x>=W)return;int a=(y<0?0:y),b=((y+h)>H?H:(y+h));for(int i=a;i<b;i++)pixels_[i*W+x]=c; }
   void drawPixel(int x,int y,uint16_t c){if(x>=0&&x<W&&y>=0&&y<H)pixels_[y*W+x]=c;}
   void drawLine(int x0,int y0,int x1,int y1,uint16_t c){
     int dx=abs(x1-x0),sx=x0<x1?1:-1,dy=-abs(y1-y0),sy=y0<y1?1:-1,err=dx+dy;
