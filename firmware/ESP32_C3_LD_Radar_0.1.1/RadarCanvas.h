@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 #include <SPI.h>
+#include <math.h>
+#include <string.h>
 #include "Config.h"
 
 // Small framebuffer renderer for ST7735. No TFT_eSPI dependency.
