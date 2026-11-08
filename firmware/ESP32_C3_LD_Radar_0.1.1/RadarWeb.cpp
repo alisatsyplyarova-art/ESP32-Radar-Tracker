@@ -201,7 +201,7 @@ void RadarWeb::handleApi(){
   const int skip = count_ - n;
   j = "{\"firmware\":\""; j += FIRMWARE_VERSION;
   j += "\",\"state\":\"";
-  j += latest ? (latest->cm < 0 ? "НЕТ ДАННЫХ" : (latest->state == 0 ? "НЕТ ЦЕЛИ" : latest->state == 1 ? "ДВИЖЕНИЕ" : latest->state == 2 ? "НЕПОДВИЖНО" : "ДВИЖ.+СТАТ.")) : "НЕТ ДАННЫХ";
+  j += latest ? ((sensor_ != 0 && latest->state == 0) ? "НЕТ ЦЕЛИ" : (latest->cm < 0 ? "НЕТ ДАННЫХ" : (latest->state == 1 ? "ДВИЖЕНИЕ" : latest->state == 2 ? "НЕПОДВИЖНО" : "ДВИЖ.+СТАТ."))) : "НЕТ ДАННЫХ";
   j += "\",\"cm\":"; j += latest ? String(latest->cm) : String(-1);
   j += ",\"energy\":"; j += latest ? String(latest->energy) : String(-1);
   j += ",\"alarm\":"; j += latest ? String(latest->alarm) : String(0);
