@@ -1,0 +1,5 @@
+Firmware: ESP32-C3 LD-Radar
+Version: C3-3.0.16
+Target: ESP32-C3 SuperMini
+Display: ST7735 160x128
+Sensor: LD2401 or LD2450 (one at a time)
