@@ -1,7 +1,7 @@
 name: Build ESP32-C3 LD-Radar Direct SPI
 on:
   push:
-    branches: [ESP32-C3-DirectSPI-0.1.1]
+    branches: [ESP32-C3-DirectSPI-0.1.2]
     paths:
       - 'firmware/ESP32_C3_LD_Radar_0.1.1/**'
       - '.github/workflows/build-c3-directspi.yml'
@@ -23,9 +23,9 @@ jobs:
       - name: Package Arduino IDE sketch
         run: |
           cd firmware
-          zip -qr ../ESP32-C3-LD-Radar-0.1.1-DirectSPI.zip ESP32_C3_LD_Radar_0.1.1
+          zip -qr ../ESP32-C3-LD-Radar-0.1.2-DirectSPI.zip ESP32_C3_LD_Radar_0.1.1
       - uses: actions/upload-artifact@v4
         with:
-          name: ESP32-C3-LD-Radar-0.1.1-DirectSPI
+          name: ESP32-C3-LD-Radar-0.1.2-DirectSPI
           path: ESP32-C3-LD-Radar-0.1.1-DirectSPI.zip
           if-no-files-found: error
