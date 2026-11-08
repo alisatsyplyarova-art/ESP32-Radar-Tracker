@@ -51,14 +51,20 @@ public:
     for(int n=0;s[n];n++){uint8_t col[5];glyph((char)s[n],col);for(int cx=0;cx<5;cx++)for(int cy=0;cy<7;cy++)if(col[cx]&(1<<cy))fillRect(x+n*6*scale+cx*scale,y+cy*scale,scale,scale,textColor_);}
   }
   const uint16_t* getPointer() const{return pixels_;}
-  void push(){ 
-    for(int i=0;i<W*H;i++){uint16_t p=pixels_[i];tx_[i*2]=p>>8;tx_[i*2+1]=p&255;}
+  void push(){
+    // Convert and transmit in small chunks: avoid a second 40 KB framebuffer.
+    uint8_t chunk[256];
     SPI.beginTransaction(SPISettings(10000000,MSBFIRST,SPI_MODE0));digitalWrite(PIN_TFT_CS,LOW);
     commandNoCS(0x2A);data16(0);data16(W-1);commandNoCS(0x2B);data16(0);data16(H-1);commandNoCS(0x2C);
-    SPI.transferBytes(tx_,nullptr,sizeof(tx_));digitalWrite(PIN_TFT_CS,HIGH);SPI.endTransaction();
+    for(int base=0;base<W*H;base+=128){
+      int count=(W*H-base>128)?128:(W*H-base);
+      for(int j=0;j<count;j++){uint16_t p=pixels_[base+j];chunk[j*2]=(uint8_t)(p>>8);chunk[j*2+1]=(uint8_t)p;}
+      SPI.transferBytes(chunk,nullptr,(uint32_t)count*2);
+    }
+    digitalWrite(PIN_TFT_CS,HIGH);SPI.endTransaction();
   }
 private:
-  uint16_t pixels_[W*H]={}; uint8_t tx_[W*H*2]; uint16_t textColor_=0xFFFF;uint8_t datum_=0;
+  uint16_t pixels_[W*H]={}; uint16_t textColor_=0xFFFF;uint8_t datum_=0;
   void commandNoCS(uint8_t c){digitalWrite(PIN_TFT_DC,LOW);SPI.transfer(c);digitalWrite(PIN_TFT_DC,HIGH);}
   void command(uint8_t c){digitalWrite(PIN_TFT_CS,LOW);digitalWrite(PIN_TFT_DC,LOW);SPI.transfer(c);digitalWrite(PIN_TFT_CS,HIGH);}
   void commandData(uint8_t c,uint8_t d){digitalWrite(PIN_TFT_CS,LOW);digitalWrite(PIN_TFT_DC,LOW);SPI.transfer(c);digitalWrite(PIN_TFT_DC,HIGH);SPI.transfer(d);digitalWrite(PIN_TFT_CS,HIGH);}
