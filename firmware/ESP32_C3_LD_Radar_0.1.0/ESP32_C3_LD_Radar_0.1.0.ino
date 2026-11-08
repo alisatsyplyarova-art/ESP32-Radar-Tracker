@@ -170,7 +170,7 @@ static void onButtons(uint32_t now) {
 void setup() {
   Serial.begin(115200);
   delay(200);
-  Serial.println(F("\n=== ESP32-C3 LD-Radar C3-0.1.0 | shared UART LD2401/LD2450 | TTGO T-Display ==="));
+  Serial.println(F("\n=== ESP32-C3 LD-Radar C3-0.1.0 | shared UART LD2401/LD2450 | ST7735 160x128 ==="));
   Serial.printf("[BOOT] reset reason %d, free heap %u, largest block %u\n",
                 (int)esp_reset_reason(), (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMaxAllocHeap());
   prefs.begin("radar", false);
