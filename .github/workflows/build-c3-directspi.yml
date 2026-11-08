@@ -27,5 +27,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ESP32-C3-LD-Radar-0.1.2-DirectSPI
-          path: ESP32-C3-LD-Radar-0.1.1-DirectSPI.zip
+          path: ESP32-C3-LD-Radar-0.1.2-DirectSPI.zip
           if-no-files-found: error
