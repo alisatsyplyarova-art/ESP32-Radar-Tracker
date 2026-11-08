@@ -6,7 +6,8 @@
 static const uint16_t kRangesMm[7] = {500,1000,1500,2000,3000,4000,6000};
 static const uint16_t kAlertMm[7] = {0,1000,2000,3000,4000,5000,6000};
 static const float kDeg = 0.017453293f;
-static const int W = 160, H = 128;\nstatic float sweepAngleDeg(uint32_t now,uint32_t period,float limitDeg){
+static const int W = 160, H = 128;
+static float sweepAngleDeg(uint32_t now,uint32_t period,float limitDeg){
   const float phase=(now%period)/(float)period;
   // Continuous triangular sweep: reaches each edge and reverses without snapping.
   const float unit=(phase<0.5f)?(-1.0f+4.0f*phase):(3.0f-4.0f*phase);
