@@ -86,7 +86,7 @@ void RadarDisplay::render(const UiContext& c) {
     const uint32_t rng=rangeMm(c.set->rangeIdx); const float k=(float)R/rng;
     for(int ring=1;ring<=5;ring++) {
       int rr=R*ring/5, px=ox-rr, py=oy;
-      for(int a=180;a>=0;a-=3) {
+      for(int a=180;a>=0;a-=1) {
         float q=a*kDeg; int nx=ox+(int)(rr*cosf(q)), ny=oy-(int)(rr*sinf(q));
         canvas_.drawLine(px,py,nx,ny,scale(th.accent,ring==5?180:85)); px=nx;py=ny;
       }
@@ -142,7 +142,7 @@ void RadarDisplay::render(const UiContext& c) {
     // Radar fan with four range rings and three bearing guides.
     for(int ring=1;ring<=4;ring++) {
       int rr=R*ring/4,px=ox+(int)(rr*sinf(-60*kDeg)),py=oy-(int)(rr*cosf(-60*kDeg));
-      for(int a=-57;a<=60;a+=3) {
+      for(int a=-57;a<=60;a+=1) {
         int nx=ox+(int)(rr*sinf(a*kDeg)),ny=oy-(int)(rr*cosf(a*kDeg));
         canvas_.drawLine(px,py,nx,ny,scale(th.accent,ring==4?190:75));px=nx;py=ny;
       }
