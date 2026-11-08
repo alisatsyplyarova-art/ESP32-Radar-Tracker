@@ -6,6 +6,8 @@
 #include "RadarLD2401.h"
 #define TFT_BLACK 0x0000
 #define TFT_WHITE 0xFFFF
+#define TL_DATUM 0
+#define TC_DATUM 1
 enum Screen : uint8_t { SCR_RADAR, SCR_TARGETS, SCR_PRESENCE, SCR_DUAL, SCR_DIAG, SCR_SETTINGS, SCR_WIFI, SCR_COUNT };
 struct UiSettings { uint8_t rangeIdx=6,brightIdx=3,theme=0; bool trails=true; uint16_t trailSeconds=5; bool sweep=false; uint8_t alertIdx=0,zoneMask=0x01,item=0; };
 struct UiContext { Screen screen=SCR_RADAR; bool demo=false; uint32_t now=0; const RadarTargets* targets=nullptr; const RadarLD2450* ld2450=nullptr; const RadarLD2401* ld2401=nullptr; bool presValid=false; LD2401Data pres; float uiFps=0; const UiSettings* set=nullptr; };
